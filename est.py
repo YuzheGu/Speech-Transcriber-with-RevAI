@@ -100,12 +100,15 @@ def config_check(config):
         console_message += "Error: Remove disfluencies should be True or False.\n"
         valid = False
     try:
-        channel_check = int(config['transcribe.config']['speaker_channels_count'])
-        if channel_check <= 0:
-            console_message += "Error: Speaker channels count should be a positive integer.\n"
+        channel_check = config['transcribe.config']['speaker_channels_count']
+        if channel_check != '1' and channel_check != 'None':
+            console_message += "Error: Speaker channels count should be either None or 1.\n"
             valid = False
+        # if channel_check <= 0:
+        #     console_message += "Error: Speaker channels count should be a positive integer.\n"
+        #     valid = False
     except Exception:
-        console_message += "Error: Speaker channels count should be a positive integer.\n"
+        console_message += "Error: Speaker channels count should be either None or 1.\n"
         valid = False
 
     # display the error message on GUI if not valid
@@ -196,17 +199,15 @@ def transcribe_speech(audiofile, client_api, message_label):
     if message_label != None:
         message_label.update()
 
+    speaker_channels_count = None if config['transcribe.config']['speaker_channels_count'] == 'None' else 1
+
     job = client_api.submit_job_local_file(
         filename = audiofile,
         skip_diarization = config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
         skip_punctuation = config.getboolean('transcribe.config', 'skip_punctuation'),
         remove_disfluencies = config.getboolean('transcribe.config', 'remove_disfluencies'),   # Set false for conversations, dialogs
-        speaker_channels_count = config['transcribe.config']['speaker_channels_count'],    # Number of audio channels
+        speaker_channels_count = speaker_channels_count,    # Number of audio channels
         language = config['transcribe.config']['language'])
-    
-    if speaker_channels_count != None:
-        speaker_channels_count = int(speakers_channels_count)
-
 
     # Retrieve transcription job info
     job_details = client_api.get_job_details(job.id)
@@ -238,14 +239,17 @@ def transcribe_speech(audiofile, client_api, message_label):
          transcript.append({'filename':audiofile,
                         'transcription':a['value'].lower(),
                         'confidence': a['confidence']})
-         
+
     else:
         for j in transcript_json["monologues"]:
-            a = ''.join(("Speaker ", str(j['speaker']),":"))
-            for i in j['elements']:
-                a = ' '.join((a,str(i['value'])))
-            transcript.append(a)
-                
+            # a = ''.join(("Speaker ", str(j['speaker']),":"))
+            for a in j['elements']:
+                # a = ' '.join((a,str(i['value'])))
+                transcript.append({'filename':audiofile,
+                               'transcription':a['value'].lower(),
+                               'confidence': a['confidence'],
+                               'speaker': str(j['speaker'])})
+
 
     return transcript
 

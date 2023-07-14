@@ -206,8 +206,10 @@ def transcribe_speech(audiofile, client_api, message_label):
         skip_diarization = config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
         skip_punctuation = config.getboolean('transcribe.config', 'skip_punctuation'),
         remove_disfluencies = config.getboolean('transcribe.config', 'remove_disfluencies'),   # Set false for conversations, dialogs
+
         speaker_channels_count = speaker_channels_count,    # Number of audio channels
         language = config['transcribe.config']['language'])
+
 
     # Retrieve transcription job info
     job_details = client_api.get_job_details(job.id)
@@ -232,6 +234,7 @@ def transcribe_speech(audiofile, client_api, message_label):
 
     transcript = []
 
+
     # Assumes a single speaker, else multiple speakers when set to "None"
     # Should this be "== 1" if 2+ channels is formated like "None", number of monologues?
     if speaker_channels_count != None:
@@ -239,7 +242,6 @@ def transcribe_speech(audiofile, client_api, message_label):
          transcript.append({'filename':audiofile,
                         'transcription':a['value'].lower(),
                         'confidence': a['confidence']})
-
     else:
         for j in transcript_json["monologues"]:
             # a = ''.join(("Speaker ", str(j['speaker']),":"))
@@ -249,6 +251,7 @@ def transcribe_speech(audiofile, client_api, message_label):
                                'transcription':a['value'].lower(),
                                'confidence': a['confidence'],
                                'speaker': str(j['speaker'])})
+
 
 
     return transcript
@@ -266,10 +269,22 @@ def save_transcription(output_data, output_file_name_def, plain_text):
         csv_writer.writeheader()
         csv_writer.writerows(output_data)
     if plain_text:
+
         text_filename = output_file_name_def.rsplit('.')[0] + '.txt'
-        with open(text_filename,'w', newline='') as outtextfile:
-            for result_word in output_data:
-                outtextfile.write(result_word['transcription'] + ' ')
+        if 'speaker' not in output_data[0]: # not a conversation
+            with open(text_filename,'w', newline='') as outtextfile:
+                for result_word in output_data:
+                    outtextfile.write(result_word['transcription'] + ' ')
+        else: # conversation
+            current_speaker = -1
+            with open(text_filename,'w', newline='') as outtextfile:
+                for result_word in output_data:
+                    if result_word['speaker'] != current_speaker:
+                        outtextfile.write('\n speaker ' + result_word['speaker'] + ': '  + result_word['transcription'] + ' ')
+                        current_speaker = result_word['speaker']
+                    else:
+                        outtextfile.write(result_word['transcription'] + ' ')
+
 
 
 # Delete temp/ and its contents

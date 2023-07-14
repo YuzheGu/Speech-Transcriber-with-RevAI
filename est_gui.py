@@ -169,7 +169,7 @@ speaker_channels_count.place(x= 185, y = 380)
 speaker_channels_count.delete(0, "end")
 speaker_channels_count.insert(0, config['transcribe.config']['speaker_channels_count'])
 entry_inputs['speaker_channels_count'] = speaker_channels_count
-speaker_channels_note = tkinter.Label(root, text="Number of audio channels ((mono=1, stereo=2)")
+speaker_channels_note = tkinter.Label(root, text="number of audio channels (mono = 1, stereo = 2, etc.)")
 speaker_channels_note.place(x= 400, y = 380)
 
 language_label = tkinter.Label(root, text="language")

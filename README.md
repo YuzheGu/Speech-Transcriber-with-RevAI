@@ -1,6 +1,16 @@
-# Easy Batch Speech Transcriber
+# Easy Speech Transcriber
 
-A Python script that simplifies speech-to-text transcription of many audio files using the rev.ai engine. Using a GUI or the command line, transcription of a folder of files is performed in one call, with the output saved in csv or txt files.
+A Python script that simplifies speech-to-text transcription of audio files using the rev.ai engine. Using a GUI or the command line, transcription of a folder of files is performed in one call, with the output saved in csv or txt files.
+
+## Contents
+1. [Requirements](#Requirements)
+2. [Setup](#Setup)
+3. [Usage](#Usage)
+4. [GUI usage](#GUI-usage)
+5. [Output](#Output)
+6. [Examples](#Examples)
+7. [Further Documentation](#Further-Documentation)
+
 
 ## Requirements
 1. Windows 10 or Mac OS 10.9 (Mavericks) and later
@@ -37,23 +47,14 @@ pip install rev_ai
 <br/>
 
 ### Create project folder
-1. Create a project folder for EBST if one is not yet created
+1. Create a project folder for EST if one is not yet created
 2. Within the project folder, create an input subfolder to hold audio files for transcription. Place your audio files for transcription into this subfolder.
 3. Within the project folder, create an output subfolder to store transcriptions.
 
 <br/>
 
-### Install Easy Batch Speech Transcriber in your project folder
+### Install Easy Speech Transcriber in your project folder
 
-#### Install using your command prompt:
-
-##### 1.  Navigate to your project folder.
-
-##### 2. Run the following command in your at a command prompt:
-
-````bash
-pip install git+https://github.com/YuzheGu/Easy-Batch-Speech-Transcriber.git
-````
 
 #### Install from this page:
 
@@ -64,18 +65,6 @@ pip install git+https://github.com/YuzheGu/Easy-Batch-Speech-Transcriber.git
 The repository will be downloaded as a ZIP file to your computer.
 
 ##### 3. Extract the contents of the ZIP file into your project folder.
-
-#### Install from the GitHub Desktop App:
-
-##### 1. Download, install and open the GitHub Desktop app on your computer
-
-##### 2. Click on the "File" menu and select "Clone Repository".
-
-##### 3. In the "Clone" tab, select the Easy-Batch-Speech-Transcriber repository from the list of available repositories.
-
-##### 5. Choose the local path to your project folder, which is where you want to save the repository on your computer.
-
-##### 6. Click on the "Clone" button to download the repository to your specified location.
 
 <br/>
 
@@ -105,14 +94,13 @@ Example:
 
 You are required to provide these variables:
 
-  - ** API token**:
-
+  - **API token**:
   - **input_folder**:
   - **output_folder**:
 
 The following variables have default values that assume you are transcribing a set of files with the output for each audio file saved in a separate csv file. Edit them to fit your transcription needs.
 
-  - **input_concatenate** - Enter `True` or `False` Enter `True` to concatenate your audiofiles for transcription. Enter `False` to keep your audiofiles unconcatenated. Note that if you mark this entry as `True`, the program will **not** be able to tell which file the transcribed audio comes from. See [result](#CSV-result) for an example.
+  - **input_concatenate** - Enter `True` or `False` Enter `True` to concatenate your audiofiles into a single long fiel for  transcription. Concatenation speeds up transcription and will be less costly when individual sound files contain only one or two spoken words. See [documentation](#Documentation) for details.
   - **plain_text** - If you would like your transcription output to be in a plain text file in addition to a CSV file, enter `True`, otherwise `False`. See [Result Interpretation](#Result-Interpretation) for an explanation of each output format type and examples.
 
 [transcribe.config] - Transcription preferences
@@ -120,7 +108,7 @@ The following variables have default values that assume you are transcribing a s
   - **skip_diarization** - If you would not like your transcription separeted by speaker, enter `True`, otherwise `False`.
   - **skip_punctuation** - If you would like the transcription to exclude punctuation, enter `True`, otherwise `False`.
   - **remove_disfluencies** - If you would like your transcription to exclude disfluencies (such as "uh"), enter `True`, otherwise `False`.
-  - **speaker_channels_count** - Enter the number of audio channels (mono = 1, stereo = 2)
+  - **speaker_channels_count** - Enter the number of audio channels (mono = 1, stereo = 2, Set to `None' when transcribing multiple speakers recorded using a single channel)
   - **langauge** - English = `en`, Spanish = `es`, Mandarin Chinese Simplified = `cmn`, French = `fr`. For a full list of languages available for transcription, click [here](https://www.rev.ai/languages).
 
 When you are finished, **Save and Exit the text editor**.
@@ -134,7 +122,7 @@ When you are finished, **Save and Exit the text editor**.
 Run the script from an IDE or from the command prompt after navigating to your project folder:
 
 ```bash
-python ebst.py
+python est.py
 ```
 
 The results of your transcription will appear in your output file after each audio file is transcribed. This may take a few minutes.
@@ -150,15 +138,11 @@ Use of the GUI allows you to enter your access token, input and output folders, 
 2. Run the following command in your command prompt or IDE:
 
 ```bash
-python ebst_gui.py
+python est_gui.py
 ```
-3. Alter the settings in the pop-up window to fit your transcription needs. 
+3. Alter the settings in the pop-up window to fit your transcription needs.
 
-If you would like to test out our program with our example audio, enter your own API token and edit the GUI window to match this example:
-
-<p align="center">
-<img src="./asset/example_gui.png" alt="gui example" width="75%"/>
-</p>
+If you would like to test out our program with our example audio, go to [examples](#EST-examples).
 
 4. Click "Save & Transcribe" to transcribe your audio.
 
@@ -192,25 +176,13 @@ A transcription result file consists of three columns: **filename**, **transcrip
 
   - **Filename** is the speech file that was transcribed
   - **Transcription** is the transcribed speech.
-  - **Confidence** A score (0-1) that denotes transcription confidence. Applies only to individual words. 
+  - **Confidence** A score (0-1) that denotes transcription confidence. Applies only to individual words.
 
 
-Example output 1:
-
-<p align="center">
-<img src="./asset/example_output1.png" alt="example output 1" width="75%"/>
-</p>
-
-Example output 2:
+Example output:
 
 <p align="center">
-<img src="./asset/example_output2.png" alt="example output 2" width="75%"/>
-</p>
-
-Note that if you mark **input_concatenate** as True, **Filename** will always be 'combinedaudiofiles.wav', and the program will not be able to tell which file the transcribed words originally came from.
-
-<p align="center">
-<img src="./asset/concatenated_example_output.png" alt="example concatenated output" width="75%"/>
+<img src="./asset/example_output_2.png" alt="example output" width="75%"/>
 </p>
 
 <br/>
@@ -221,20 +193,100 @@ If the **plain_text** entry in transcription_config.ini is marked as True, an ad
 
 Example output:
 
-```bash
-this is easy batch speech transcriber it is used to transcribe speech
-```
+<p align="center">
+<img src="./asset/example_output_2p.png" alt="example plain text output" width="75%"/>
+</p>
+
 <br/>
 
-## Test out EBST 
+## Examples
 
-To ensure EBST works on your computer before using it on your own files, enter your API token and the names of the example folders provided with the repository ("example_input" and "example_output"). Leave all other default values the same. Run the code. X files containing Y words will be transcribed. It will take approximately A minutes and will cost about Z cents.
+Here are three examples of EST usage.
 
+### Transcribe multiple short audio files
 
+The first example is to transcribe multiple audio files each containing a single word.
+To ensure EST works on your computer before using it on your own files, enter your own API token. Then change the rest of the configurations as shown below.
+
+Example Configuration:
+
+<p align="center">
+<img src="./asset/example_gui_1.png" alt="example gui 1" width="75%"/>
+</p>
+
+Run the code. Three files containing three words will be transcribed. It will take approximately 1-2 minutes and will cost about Z cents.
+
+Example csv output:
+
+<p align="center">
+<img src="./asset/example_output_1.png" alt="example output 1" width="75%"/>
+</p>
+
+<p align="center">
+<img src="./asset/example_output_12.png" alt="example output 12" width="75%"/>
+</p>
+
+<p align="center">
+<img src="./asset/example_output_13.png" alt="example output 13" width="75%"/>
+</p>
+
+<br/>
+
+### Transcriibe an audio file of a sentence
+
+The second example is to transcribe one audio file containing a sentence.
+Change your configurations as shown below.
+
+Example Configuration:
+
+<p align="center">
+<img src="./asset/example_gui_2.png" alt="example gui 2" width="75%"/>
+</p>
+
+Run the code. One file containing a sentence will be transcribed. It will take approximately 1 minutes and will cost about Z cents.
+
+Example csv output:
+
+<p align="center">
+<img src="./asset/example_output_2.png" alt="example output 2" width="75%"/>
+</p>
+
+Example plain text output:
+
+<p align="center">
+<img src="./asset/example_output_2p.png" alt="example plain text output 2" width="75%"/>
+</p>
+
+<br/>
+
+### Transcriibe an audio file of a two-speaker conversation
+
+The last example is to transcribe one audio file containing a two-speaker conversation.
+Change your configurations as shown below.
+
+Example Configuration:
+
+<p align="center">
+<img src="./asset/example_gui_3.png" alt="example gui 3" width="75%"/>
+</p>
+
+Run the code. One file containing a conversation will be transcribed. It will take approximately 1 minutes and will cost about Z cents.
+
+First several lines of the example csv output:
+
+<p align="center">
+<img src="./asset/example_output_3.png" alt="example output 3" width="75%"/>
+</p>
+
+Example plain text output:
+
+<p align="center">
+<img src="./asset/example_output_3p.png" alt="example plain text output 3" width="75%"/>
+</p>
 
 <br/><br/>
 
 ## Further Documentation
 
 
-Please familiarize yourself with the accompanying manuscript to ensure your EBST settings are appropriate for your needs. There we describe use cases from transcribing single words to conversations between two people, discuss efficiencies and drawbacks to concatenation, job management and job/file deletion.
+Please familiarize yourself with the accompanying manuscript to ensure your EST settings are appropriate for your needs. There we describe use cases from transcribing single words to conversations between two people, discuss efficiencies and drawbacks to concatenation, job management and job/file deletion.

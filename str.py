@@ -23,6 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
+# import required packages
+
 import os
 import csv
 import datetime
@@ -33,14 +35,17 @@ import sys
 from pydub import AudioSegment, utils
 from rev_ai import apiclient
 import configparser
+import string
 
+# create config file reader
 config = configparser.ConfigParser()
 config.read('transcription_config.ini')
 
+# config file entries structure
 config_entries = {'API.token':['token'],
                   'folders':['input_folder', 'output_folder'],
-                  'concatenation':['input_concatenate', 'plain_text'],
-                  'transcribe.config':['skip_diarization', 'skip_punctuation', 'remove_disfluencies', 'speaker_channels_count', 'language']
+                  'concatenation':['concatenate_input', 'text_only'],
+                  'transcribe.config':['skip_diarization', 'skip_punctuation', 'remove_disfluencies', 'speaker_channels_count', 'language', 'delete_after_seconds']
                  }
 
 # Check if all config.ini values are available and valid
@@ -65,50 +70,64 @@ def config_check(config):
                 console_message += f'option miss: {entry}, {item}\n'
                 valid = False
 
-    # Simple way to check if hte the API token is valid
-    # Error is generated if it fails retriveinv the last job.
+    # Simple way to check if the API token is valid
+    # Error is generated if it fails to retrieve the last job.
     client = apiclient.RevAiAPIClient(config['API.token']['token'])
     try:
         jobs = client.get_list_of_jobs(limit=1)
     except Exception:
-        console_message += "Error: API token is invalid.\n"
+        console_message += 'Error: API token is invalid.\n'
         valid = False
 
     # Check input and output folders
     if not os.path.exists(config['folders']['input_folder']):
-        console_message += "Error: Input folder does not exist. Ensure the corret folder name is specified.\n"
+        console_message += 'Error: Input folder does not exist. Ensure the corret folder name is specified.\n'
         valid = False
 
     if not os.path.exists(config['folders']['output_folder']):
-        console_message += "Error: Output folder does not exist, so we made it. It is named \"output\"\n"
+        console_message += 'Error: Output folder does not exist, so we made it. It is named "output"\n'
         os.mkdir(config['folders']['output_folder'])
 
-    # checking for other parameters
-    if config['concatenation']['input_concatenate'] != "True" and config['concatenation']['input_concatenate'] != "False":
-        console_message += "Error: Input concatenate should be True or False.\n"
+    # checking for other boolean parameters
+    if config['concatenation']['concatenate_input'] != "True" and config['concatenation']['concatenate_input'] != "False":
+        console_message += 'Error: Input concatenate should be True or False.\n'
         valid = False
-    if config['concatenation']['plain_text'] != "True" and config['concatenation']['plain_text'] != "False":
-        console_message += "Error: Plain text should be True or False.\n"
+    if config['concatenation']['text_only'] != "True" and config['concatenation']['text_only'] != "False":
+        console_message += 'Error: Plain text should be True or False.\n'
         valid = False
     if config['transcribe.config']['skip_diarization'] != "True" and config['transcribe.config']['skip_diarization'] != "False":
-        console_message += "Error: Skip diarization should be True or False.\n"
+        console_message += 'Error: Skip diarization should be True or False.\n'
         valid = False
     if config['transcribe.config']['skip_punctuation'] != "True" and config['transcribe.config']['skip_punctuation'] != "False":
-        console_message += "Error: Skip punctuation should be True or False.\n"
+        console_message += 'Error: Skip punctuation should be True or False.\n'
         valid = False
     if config['transcribe.config']['remove_disfluencies'] != "True" and config['transcribe.config']['remove_disfluencies'] != "False":
-        console_message += "Error: Remove disfluencies should be True or False.\n"
+        console_message += 'Error: Remove disfluencies should be True or False.\n'
         valid = False
     try:
+        # check the speaker channels count - it needs to be a positive integer or None
         channel_check = config['transcribe.config']['speaker_channels_count']
-        if channel_check != '1' and channel_check != 'None':
-            console_message += "Error: Speaker channels count should be either None or 1.\n"
+        if not channel_check.isnumeric() and channel_check != 'None':
+            console_message += 'Error: Speaker channels count should be either None or a positive number.\n'
             valid = False
-        # if channel_check <= 0:
-        #     console_message += "Error: Speaker channels count should be a positive integer.\n"
-        #     valid = False
+        if channel_check.isnumeric() and int(channel_check) <= 0:
+            console_message += "Error: Speaker channels count should be a positive integer.\n"
+            valid = False
     except Exception:
-        console_message += "Error: Speaker channels count should be either None or 1.\n"
+        console_message += 'Error: Speaker channels count should be either None or a positive number.\n'
+        valid = False
+
+    try:
+        # check the delete after seconds - it needs to be a positive integer or None
+        delete_check = config['transcribe.config']['delete_after_seconds']
+        if not delete_check.isnumeric() and delete_check != 'None':
+            console_message += 'Error: Delete after seconds should be either None or a positive number.\n'
+            valid = False
+        if delete_check.isnumeric() and int(delete_check) <= 0:
+            console_message += "Error: Delete after seconds should be a positive integer.\n"
+            valid = False
+    except Exception:
+        console_message += 'Error: Delete after seconds should be either None or a positive number.\n'
         valid = False
 
     # display the error message on GUI if not valid
@@ -124,16 +143,15 @@ def config_check(config):
 #Parameters:
 #file_list - the file list that contains the audio files to be concatenated.
 #return: [temp_audiofile] - the file name of the long temp audio file.
-def concatenate_audiofiles(t_folder, afile_list, file_extension):
+def concatenate_audiofiles(temp_folder_name, afile_list, file_extension):
 
-    # temporary audiofile used to hold concatenated files
-    temp_audiofile = "".join((t_folder, 'combinedaudiofiles.', file_extension))
-
-    # initialize an audiosegment for cancatenating audio files
+    # temporary audio file used to hold concatenated files
+    temp_audiofile = "".join((temp_folder_name, 'combinedaudiofiles.', file_extension))
+    # initialize an audiosegment for concatenating audio files
     concatenated_audio = AudioSegment.empty()
 
     for audiofile in afile_list:
-        # Read the audio file in the folder
+        # Read the audiofile in the folder
         if file_extension == 'ogg':
             filecodec = utils.mediainfo(audiofile)['codec_name']
             if filecodec == 'vorbis':
@@ -146,7 +164,7 @@ def concatenate_audiofiles(t_folder, afile_list, file_extension):
         # This might not be a problem but it is a cheap safeguard
         concatenated_audio += AudioSegment.silent(duration=100)
 
-    # Save concatenated sound files to a temporary file for use by rev.ai, next
+    # Save concatenated sound files to a temporary file for use by rev.ai
     if file_extension == 'ogg':
         file_handle = concatenated_audio.export(temp_audiofile, format=file_extension, codec=filecodec)
     else:
@@ -175,8 +193,8 @@ def elongate_audiofile(t_folder, original_file_name, added_duration, file_extens
     stim += AudioSegment.silent(duration = 1000 * added_duration)
 
     # Assumes the input folder is only one level down. Otherwise rsplit will fail
-    o_file = original_file_name.rsplit('.')[0].split('/')[1]
-    elongated_file_name = ''.join((t_folder, o_file, "_long", ".", file_extension))
+    base_file_name = original_file_name.rsplit('.')[0].split('/')[1]
+    elongated_file_name = ''.join((t_folder, base_file_name, '_long', '.', file_extension))
 
     if file_extension == 'ogg':
         file_handle = stim.export(elongated_file_name, format=file_extension, codec=filecodec)
@@ -193,22 +211,44 @@ def elongate_audiofile(t_folder, original_file_name, added_duration, file_extens
 #
 def transcribe_speech(audiofile, client_api, message_label):
     # Submit job for transcription
-    print(f"transcribing:{audiofile}")
+    print(f'transcribing:{audiofile}')
 
     # update the GUI if in GUI mode
     if message_label != None:
         message_label.update()
 
-    speaker_channels_count = None if config['transcribe.config']['speaker_channels_count'] == 'None' else 1
+    # speaker channels count is a positive integer or None
+    speaker_channels_count = None if config['transcribe.config']['speaker_channels_count'] == 'None' else int(config['transcribe.config']['speaker_channels_count'])
+    # delete after seconds is a positive integer or None
+    delete_after_seconds = None if config['transcribe.config']['delete_after_seconds'] == 'None' else int(config['transcribe.config']['delete_after_seconds'])
 
-    job = client_api.submit_job_local_file(
-        filename = audiofile,
-        skip_diarization = config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
-        skip_punctuation = config.getboolean('transcribe.config', 'skip_punctuation'),
-        remove_disfluencies = config.getboolean('transcribe.config', 'remove_disfluencies'),   # Set false for conversations, dialogs
+    if config['transcribe.config']['language'] == 'en':
+        job = client_api.submit_job_local_file(
+            filename = audiofile,  # file name
+            skip_diarization = config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
+            skip_punctuation = config.getboolean('transcribe.config', 'skip_punctuation'),  # removes punctuations
+            remove_disfluencies = config.getboolean('transcribe.config', 'remove_disfluencies'),  # removes speech disfluencies ("uh", "um"). Only avalable for English, Spanish, French languages
+            speaker_channels_count = speaker_channels_count,  # Number of audio channels. Only avalable for English, Spanish, French languages
+            language = config['transcribe.config']['language'],  # language of the audio file(s)
+            delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
+            #verbatim = True,  # transcribe every syllable
+            #remove_atmospherics = True,  # remove atmospherics (e.g. <laugh>)
+            #filter_profanity = True,  # filter profanities
+            #diarization_type = "standard",  # diarization type
+            #custom_vocabularies = []  # additional vocabulary
+            )
+    else:
+        job = client_api.submit_job_local_file(
+            filename = audiofile,  # file name
+            skip_diarization = config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
+            language = config['transcribe.config']['language'],  # language of the audio file(s)
+            delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
+            #verbatim = True,  # transcribe every syllable
+            #remove_atmospherics = False,  # remove atmospherics (e.g. <laugh>)
+            #filter_profanity = False,  # filter profanities
+            #custom_vocabularies = []  # additional vocabulary
+            )
 
-        speaker_channels_count = speaker_channels_count,    # Number of audio channels
-        language = config['transcribe.config']['language'])
 
 
     # Retrieve transcription job info
@@ -216,17 +256,17 @@ def transcribe_speech(audiofile, client_api, message_label):
 
     # Poll job progress until finished
     # To see all details: var(job_details) in console
-    while (job_details.status.name == "IN_PROGRESS"):
+    while (job_details.status.name == 'IN_PROGRESS'):
         time.sleep(20)
         job_details = client_api.get_job_details(job.id)
 
 
     # Grab the transcript or raise an exception on failure
     # See transcription history in your account at rev.ai for explanation
-    if job_details.status.name == "TRANSCRIBED":
+    if job_details.status.name == 'TRANSCRIBED':
         transcript_json = client_api.get_transcript_json(job.id)
-    elif job_details.status.name == "FAILED":
-        failure_message = f"Transcription failed: {job_details.failure}\n{job_details.failure_detail}\n\n"
+    elif job_details.status.name == 'FAILED':
+        failure_message = f'Transcription failed: {job_details.failure}\n{job_details.failure_detail}\n\n'
         if message_label != None:
             # update the GUI if in GUI mode
             message_label.update()
@@ -236,20 +276,28 @@ def transcribe_speech(audiofile, client_api, message_label):
 
 
     # Assumes a single speaker, else multiple speakers when set to "None"
-    # Should this be "== 1" if 2+ channels is formated like "None", number of monologues?
     if speaker_channels_count != None:
-        for j, a in enumerate(transcript_json["monologues"][0]["elements"], start=0):
-         transcript.append({'filename':audiofile,
-                        'transcription':a['value'].lower(),
-                        'confidence': a['confidence']})
+        for transcript_num in range(len(transcript_json["monologues"])):
+            for j, a in enumerate(transcript_json["monologues"][transcript_num]["elements"], start=0):
+                # remove white space
+                if a['type'] == 'punct' and a['value'] == ' ':
+                    continue
+                # output file name, transcribed word, and confidence level
+                transcript.append({'filename':audiofile,
+                            'transcription':a['value'].lower(),
+                            'confidence': a['confidence'] if a['type'] != 'punct' else '/' })
     else:
         for j in transcript_json["monologues"]:
             # a = ''.join(("Speaker ", str(j['speaker']),":"))
+            # remove white space
             for a in j['elements']:
+                if a['type'] == 'punct' and a['value'] == ' ':
+                    continue
                 # a = ' '.join((a,str(i['value'])))
+                # output file name, transcribed word, confidence level, and speaker information
                 transcript.append({'filename':audiofile,
                                'transcription':a['value'].lower(),
-                               'confidence': a['confidence'],
+                               'confidence': a['confidence'] if a['type'] != 'punct' else '/',
                                'speaker': str(j['speaker'])})
 
 
@@ -257,33 +305,42 @@ def transcribe_speech(audiofile, client_api, message_label):
     return transcript
 
 
-#Save transcriptions to csv file
+#Save transcriptions to CSV file
 #Parameters:
 #   output_data - transcription data dict.
 #   output_file_name_def - the output file name.
-#   plain_text - to output a plain text version or not.
-def save_transcription(output_data, output_file_name_def, plain_text):
+#   text_only - to output a plain text (TXT) version or not.
+def save_transcription(output_data, output_file_name_def, text_only):
     keys_list = output_data[0].keys()
-    with open(output_file_name_def,'w', newline='') as outfile:
+    with open(output_file_name_def,'w', newline='', encoding = 'utf-8-sig') as outfile:
         csv_writer = csv.DictWriter(outfile, keys_list)
         csv_writer.writeheader()
         csv_writer.writerows(output_data)
-    if plain_text:
+    if text_only:
 
         text_filename = output_file_name_def.rsplit('.')[0] + '.txt'
         if 'speaker' not in output_data[0]: # not a conversation
             with open(text_filename,'w', newline='') as outtextfile:
                 for result_word in output_data:
-                    outtextfile.write(result_word['transcription'] + ' ')
-        else: # conversation
+                    # no white space before a punctuation
+                    if result_word['transcription'] in string.punctuation:
+                        outtextfile.write(result_word['transcription'])
+                    else:
+                        outtextfile.write(''.join((' ', result_word['transcription'])))
+        else: # example use: conversation
             current_speaker = -1
             with open(text_filename,'w', newline='') as outtextfile:
                 for result_word in output_data:
+                    # switch speaker
                     if result_word['speaker'] != current_speaker:
-                        outtextfile.write('\n speaker ' + result_word['speaker'] + ': '  + result_word['transcription'] + ' ')
+                        outtextfile.write(''.join(('\nspeaker ', result_word['speaker'], ': ', result_word['transcription'])))
                         current_speaker = result_word['speaker']
                     else:
-                        outtextfile.write(result_word['transcription'] + ' ')
+                        # no white space before a punctuation
+                        if result_word['transcription'] in string.punctuation:
+                            outtextfile.write(result_word['transcription'])
+                        else:
+                            outtextfile.write(''.join((' ', result_word['transcription'])))
 
 
 
@@ -312,14 +369,14 @@ def main(message_label):
     # Process the audio files individually or concatenate them into a single file for transcription
     #  For short files, this is more efficient and less costly.
     #True - concatenated. False - individual files
-    input_concatenate = config.getboolean('concatenation', 'input_concatenate')
-    plain_text = config.getboolean('concatenation', 'plain_text')
+    concatenate_input = config.getboolean('concatenation', 'concatenate_input')
+    text_only = config.getboolean('concatenation', 'text_only')
 
     # Used as part of the transcription output filename
     date_time = datetime.datetime.now()
     date_today = date_time.strftime('%m%d%Y')
 
-    supported_extensions = ["mp3", "wav", "ogg", "opus", "flac", "webm"]
+    supported_extensions = ['mp3', 'wav', 'ogg', 'opus', 'flac', 'webm']
 
     # Make a temporary folder for storing elongated and concatenated audio files
     temp_folder = 'temp/'
@@ -332,17 +389,17 @@ def main(message_label):
     # check if all audio files have the same extension
     dummy, first_extension = audiofile_list[0].rsplit(".")
     if not all(f.endswith(first_extension) for f in audiofile_list):
-        print("Error: All audio files in the input folder must have the same file extension (be the same format).")
+        print('Error: All audio files in the input folder must have the same file extension (be the same format).')
         exit()
 
     # Ensure extension is supported
     if first_extension not in supported_extensions:
-        print(f"Error: You are using an unsupported audio format. Spported formats: {supported_extensions} ")
+        print(f'Error: You are using an unsupported audio format. Spported formats: {supported_extensions} ')
         exit()
 
 
     # concatenate the audio files in the list if in input concatenated mode
-    if input_concatenate == True:
+    if concatenate_input == True:
 
         audiofile = concatenate_audiofiles(temp_folder, audiofile_list, first_extension)
 
@@ -350,10 +407,10 @@ def main(message_label):
         transcript = transcribe_speech(audiofile, client_api, message_label)
 
         # Save all trascriptions in output folder
-        output_filename = "".join((output_folder + "concatenated_transcription_" + date_today + ".csv"))
-        save_transcription(transcript, output_filename, plain_text)
+        output_filename = ''.join((output_folder + 'concatenated_transcription_' + date_today + '.csv'))
+        save_transcription(transcript, output_filename, text_only)
 
-    # input_concatenate = False
+    # concatenate_input = False
     else:
         # Transcribe speech files
         for audiofile in audiofile_list:
@@ -367,30 +424,25 @@ def main(message_label):
 
                 transcript = transcribe_speech(audiofile, client_api, message_label)
                 # Save all trascriptions in output folder
-                # prefix = name of audio file
-                prefix =  re.split('[/.]', audiofile)[-2]
-                output_filename = "".join((output_folder + prefix + "_transcription_" + date_today + ".csv"))
-                save_transcription(transcript, output_filename, plain_text)
+                audio_file_name =  re.split('[/.]', audiofile)[-2]
+                output_filename = ''.join((output_folder + audio_file_name + '_transcription_' + date_today + '.csv'))
+                save_transcription(transcript, output_filename, text_only)
 
 
-    print("\nAll transcription is finished")
+    print('\nAll transcription is finished')
     # update the GUI if in GUI mode
     if message_label != None:
         message_label.update()
     # Delete folders and files that were created
     delete_temp_folder(temp_folder)
 
-if __name__ == "__main__":
-    try:
-        # Check that entries in ini are valid
-        # Program will abort if errors are found
-        config_message, config_valid = config_check(config)
-        print(config_message)
+if __name__ == '__main__':
+    # Check that entries in config.ini are valid
+    # Program will abort if errors are found
+    config_message, config_valid = config_check(config)
+    print(config_message)
 
-        #run the transcription only when every entry is valid
-        if not config_valid:
-           exit()
-        main(None) # pass None to suggest that the program is running in script mode and no gui used.
-    except Exception:
-        print("Error: exception found, program exited.")
+    #run the transcription only when every entry is valid
+    if not config_valid:
         exit()
+    main(None) # pass None to suggest that the program is running in script mode (not using GUI).

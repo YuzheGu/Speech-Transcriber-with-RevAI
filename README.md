@@ -1,90 +1,88 @@
-# Easy Speech Transcriber
+# Speech Transcriber using Rev AI (STR)
 
-A Python script that simplifies speech-to-text transcription of audio files using the rev.ai engine. Using a GUI or the command line, transcription of a folder of files is performed in one call, with the output saved in csv or txt files.
+A Python script that simplifies speech-to-text transcription of audio files using the Rev AI engine. Using a GUI or the command line, transcription of a folder of files is performed in one call, and  transcriptions are saved in csv files.
 
 ## Contents
 1. [Requirements](#Requirements)
 2. [Setup](#Setup)
 3. [Usage](#Usage)
 4. [GUI usage](#GUI-usage)
-5. [Output](#Output)
-6. [Examples](#Examples)
-7. [Further Documentation](#Further-Documentation)
+5. [Output](#Output-formats)
+6. [Examples of STR usage](#Transcription-Examples)
+7. [Other Languages](#Other-Languages)
+8. [Variable Settings for Common Use Cases](#Variable-Settings-for-Common-Use-Cases)
+9. [Further Documentation](#Further-Documentation)
 
 
 ## Requirements
-1. Windows 10 or Mac OS 10.9 (Mavericks) and later
-2. Python >= 3.7\
-To install Python, visit the official Python website at [python.org](https://www.python.org/downloads/).
+1. Operating system: Windows 10 or Mac OS 10.9 (Mavericks) and later, Linux.
 
-3. Familiarity with using the command prompt (terminal command line for Mac OS) ([Windows](https://www.freecodecamp.org/news/command-line-commands-cli-tutorial/) and [Mac OS](https://www.alphr.com/open-command-prompt-mac/) instructions)
+2. Python >= 3.7. We recommend installing [miniconda](https://docs.conda.io/projects/miniconda/en/latest/) if Python it is not installed on your computer.
+
+3. Familiarity with using the command line tool: Check [command line tools tutorial](https://www.codecademy.com/article/command-line-commands) for instructions.
 
 <br/><br/>
 
 ## Setup
 
-### Install FFmpeg
+### Obtain a Rev AI API token
 
-Skip this step if you are transcribing **only** .wav files.
+1. Create an account at [rev.ai](https://www.rev.ai/).
 
-If you are transcribing files other than .wav files (e.g. .mp3, .ogg, .opus, .flac, and .webm), install FFmpeg. Follow the steps described [here](https://www.hostinger.com/tutorials/how-to-install-ffmpeg) based on your operating system.
+2. Go to the Access Token tab. Generate an access token and save it in a safe place. You will need it later.
 
-<br/>
+A new account is credited with 5 hours of free transcription. After exceeding this limit, you will be charged. See [Rev AI pricing](https://www.rev.ai/pricing) for details.
+
+<br/><br/>
 
 ### Install dependencies
 Two Python dependencies are required.
 
-**Pydub** is needed for the program to manipulate the audiofiles. Run this line of code at a command prompt:
+**pydub** is needed to manipulate audio files. Run this line of code at the command line tool:
 ```bash
-pip install pydub
+pip3 install pydub
 ```
 
-**Rev_ai** is needed for the program to submit transcription requests to the Rev AI Asynchronous Speech-to-Text API. Run this command at a command prompt:
+**rev_ai** is needed to submit transcription requests to the Rev AI server. Run this line of code at the command line tool:
 ```bash
-pip install rev_ai
+pip3 install rev_ai
 ```
 
 <br/>
 
-### Create project folder
-1. Create a project folder for EST if one is not yet created
-2. Within the project folder, create an input subfolder to hold audio files for transcription. Place your audio files for transcription into this subfolder.
-3. Within the project folder, create an output subfolder to store transcriptions.
+### Install FFmpeg
+
+Skip this step if you are transcribing **only** .wav files.
+
+If you are transcribing audio files that were recorded in a format other than .wav (e.g. .mp3, .ogg), install FFmpeg. Follow the steps described [here](https://www.hostinger.com/tutorials/how-to-install-ffmpeg) based on your operating system. See below for details on the file formats supported by STR.
 
 <br/>
 
-### Install Easy Speech Transcriber in your project folder
+### Install STR
 
+Clone the repository if you are familiar with Git. Otherwise follow these steps.
 
-#### Install from this page:
+1. Click the green "Code" button above.
 
-##### 1. Click the green "Code" button above.
+2. In the dropdown menu, click on "Download ZIP". The repository will be downloaded as a ZIP file to your computer.
 
-##### 2. In the dropdown menu, click on "Download ZIP".
+3. Unzip the ZIP file and place the project folder in your working directory.
 
-The repository will be downloaded as a ZIP file to your computer.
+4. Within the project folder, create an input subfolder to store the audio files you wish to transcribe. Place the audio files for transcription in this subfolder.
 
-##### 3. Extract the contents of the ZIP file into your project folder.
+5. Within the project folder, create an output subfolder to store transcriptions.  Transcription output will be generated in this subfolder.
 
 <br/>
-
-### Obtain a rev.ai API token
-1. Create an account at [rev.ai](https://www.rev.ai/).
-2. Go to the tab labelled Access Token. Generate an access token and save it in a safe place. You will need it later.
-
-A new account can transcribe five hours of speech for free. After exceeding this limit, you will be charged. Visit the [rev_ai website](https://www.rev.ai/pricing) for details on pricing.
-
-<br/><br/>
 
 ## Usage
 
-Users who prefer to use the GUI should skip to the section called [GUI Usage](#GUI-usage). If you have limited programming experience, we recommend you use the GUI.
+Users who prefer to use the GUI should skip to the [GUI Usage](#GUI-usage) section. If you have limited programming experience, we recommend you use the GUI.
 
 ### Edit transcription_config.ini in a text editor
 
-The transcription_config.ini file stores your API token, input and output folder names, and transcription preferences.
+The transcription_config.ini file stores your API token, input and output folder names, and transcription variables.
 
-#### Open Transcription_config.ini in a text editor.
+#### Open Transcription_config.ini in a text editor
 
 Example:
 
@@ -92,26 +90,36 @@ Example:
 <img src="./asset/example_config_file.png" alt="config file example" width="75%"/>
 </p>
 
-You are required to provide these variables:
+#### Transcription variables
 
-  - **API token**:
-  - **input_folder**:
-  - **output_folder**:
+These variables must be specified
 
-The following variables have default values that assume you are transcribing a set of files with the output for each audio file saved in a separate csv file. Edit them to fit your transcription needs.
+  - **API token** - Your API token.
+  - **input_folder** - The name of the folder that stores your audio files.
+  - **output_folder** - The name of the folder that will store transcriptions.
 
-  - **input_concatenate** - Enter `True` or `False` Enter `True` to concatenate your audiofiles into a single long fiel for  transcription. Concatenation speeds up transcription and will be less costly when individual sound files contain only one or two spoken words. See [documentation](#Documentation) for details.
-  - **plain_text** - If you would like your transcription output to be in a plain text file in addition to a CSV file, enter `True`, otherwise `False`. See [Result Interpretation](#Result-Interpretation) for an explanation of each output format type and examples.
+Optional settings to customize transcription
 
-[transcribe.config] - Transcription preferences
+  - **concatenate_input** - Default: `False`. Specifies whether audio files will be combined into one long audio file prior to transcription. Concatenation speeds up transcription and is less costly when individual sound files contain one or two spoken words. Specify `True` to concatenate your audio files. Specify `False` to transcribe each audio file separately.
+  - **text_only** - Default: `False`. Specify if a text-only (.txt file) will be generated in addition to a .csv file. Specify `True` to have transcriptions also output in a .txt file. Specify `False` to have transcription only in .csv files. Most useful for transcribing sentences and conversations. See [output](#Output-formats) for details on output formats and examples.
 
-  - **skip_diarization** - If you would not like your transcription separeted by speaker, enter `True`, otherwise `False`.
-  - **skip_punctuation** - If you would like the transcription to exclude punctuation, enter `True`, otherwise `False`.
-  - **remove_disfluencies** - If you would like your transcription to exclude disfluencies (such as "uh"), enter `True`, otherwise `False`.
-  - **speaker_channels_count** - Enter the number of audio channels (mono = 1, stereo = 2, Set to `None' when transcribing multiple speakers recorded using a single channel)
-  - **langauge** - English = `en`, Spanish = `es`, Mandarin Chinese Simplified = `cmn`, French = `fr`. For a full list of languages available for transcription, click [here](https://www.rev.ai/languages).
+Transcription settings
 
-When you are finished, **Save and Exit the text editor**.
+  - **skip_diarization** - Default: `True`. Specify if output will indicate speaker identity alongside the transcription. If speaker identity is not relevant, such as if the audio contains only one speaker, set to `True`. When `False`, the transcription engine will distinguish the speech among speakers. (i.e., speaker 0, speaker 1, etc.). Note that  speaker_channels_count must also be specified correctly for diarization to succeed.
+  - **skip_punctuation** - Default: `True`. Specify whether the output will include punctuation. Specify `True` if you would like the transcription to exclude punctuation, otherwise specify `False`. Only available for **English**.
+  - **remove_disfluencies** - Default: `True`. Specify whether the output will contain speech disfluencies that are recognized by the transcription engine ("um" and "uh"). specify `True` if you would like your transcription to exclude disfluencies, otherwise specify `False`. Only available for **English**.
+  - **speaker_channels_count** - Default: `1`. Specify the number of audio channels in the audio file. Mono = 1, Stereo = 2, (up to 8). Specify `None` when there are multiple speakers in a single channel. The value of skip_diarization will be ignored if an integer value is provided here. Only available for **English**.
+  - **language** - Default: `en`. Language of transcription. English = `en`, Spanish = `es`, Mandarin Chinese Simplified = `cmn`, French = `fr`. For a full list of languages available for transcription, see [Rev AI supported languages](https://www.rev.ai/languages).
+  - **delete_after_seconds** - Default: `None`. The number of seconds before the audio file is deleted from the server. None = no time specified (audio will be deleted according to user’s account settings - default is 30 days).
+
+These additional transcription variables are included in str.py but commented out because they may be of secondary importance to most users. Uncomment and set them as needed. For a full explanation of these variables, visit [transcription variables](https://docs.rev.ai/api/asynchronous/reference/#operation/SubmitTranscriptionJob).
+
+  - **verbatim** - Default: `True`. Specify `True`, if you would like to transcribe all utterance (disfluencies, repetitions, etc). otherwise specify `False`.
+  - **remove_atmospherics** - Default: `False`. Specify `True`, if you would like to remove `<laugh>`, `<affirmative>`, etc., otherwise specify `False`.
+  - **filter_profanity** - Default: `False`. Specify `True`, if you would like to filter profanity, otherwise specify `False`.
+  - **custom_vocabularies** - Default: `None`. Provide your own vocabulary to improve transcription accuracy of these words (e.g. unique names, specific terminologies, etc.). Check [custom vocabulary](https://docs.rev.ai/api/custom-vocabulary/#:~:text=Custom%20vocabularies%20are%20submitted%20as,to%201000%20for%20other%20languages) for details.
+
+**Save the file when finished.**
 
 
 
@@ -119,11 +127,12 @@ When you are finished, **Save and Exit the text editor**.
 
 ### Run the script
 
-Run the script from an IDE or from the command prompt after navigating to your project folder:
+Run the script from an IDE or from the command line using this line of code after navigating to your project folder.
 
 ```bash
-python est.py
+python3 str.py
 ```
+
 
 The results of your transcription will appear in your output file after each audio file is transcribed. This may take a few minutes.
 
@@ -131,24 +140,22 @@ The results of your transcription will appear in your output file after each aud
 
 ## GUI usage
 
-Use of the GUI allows you to enter your access token, input and output folders, and alter transcription settings without opening the configuration file.
+Use of the GUI allows you to enter your access token, input and output folders, and alter transcription variables without directly editing the configuration file.
 
-1.  Use command prompts to navigate to your project folder.
-
-2. Run the following command in your command prompt or IDE:
+1. Run the script from an IDE or from the command line using this line of code after navigating to your project folder
 
 ```bash
-python est_gui.py
+python3 str_gui.py
 ```
-3. Alter the settings in the pop-up window to fit your transcription needs.
 
-If you would like to test out our program with our example audio, go to [examples](#EST-examples).
+2. Alter the variables in the pop-up window to fit your transcription needs. See [transcription variables](#Transcription-variables) for a description of each variable.
 
-4. Click "Save & Transcribe" to transcribe your audio.
 
-Transcription messages will appear below the "Save & Transcribe" button. Here, it will tell you what the program is currently doing and when the program has finished transcription.
+3. Click "Save & Transcribe" to transcribe your audio files.
 
-You will see "Configuration check passed." if the GUI entries are all correct. If there are errors in the GUI entries, error messages will appear. Each error message will instruct you on how to fix the error. Once the errors are fixed, click "Save & Transcribe" again to transcribe your audio.
+Transcription messages will appear below the "Save & Transcribe" button that inform you of what the program is currently doing and when the program has finished transcription.
+
+You will see "Configuration check passed." if all GUI entries have valid values. If there are errors in the GUI entries, error messages will appear and instruct you where the errors are. Once the errors are fixed, click "Save & Transcribe" again to transcribe your audio.
 
 Example output:
 
@@ -156,7 +163,7 @@ Example output:
 <img src="./asset/error_gui.png" alt="error gui example" width="75%"/>
 </p>
 
-Once all audiofiles are transcribed, you will see the message "All transcription is finished", and your transcription file will appear in your output folder.
+Once all audio files are transcribed, you will see the message "All transcription is finished", and your transcription file will appear in your output folder.
 
 Example output:
 
@@ -166,111 +173,122 @@ Example output:
 
 <br/><br/>
 
-## Output
+## Output formats
 
-### CSV output
+### csv output
 
-CSV format transcription results are found under the output folder you specified. You can use the processing date and time to locate the result file(s).
+.csv transcriptions are saved in the output folder. You can use the processing date to locate the result file(s) within the output folder.
 
-A transcription result file consists of three columns: **filename**, **transcription**, and **confidence** as shown below. Each line contains the transcription of the speech in the listed audio file.
+A transcription file consists of three columns: **Filename**, **Transcription**, and **Confidence** as shown below. Each line contains the transcription of a word in the listed audio file.
 
-  - **Filename** is the speech file that was transcribed
-  - **Transcription** is the transcribed speech.
-  - **Confidence** A score (0-1) that denotes transcription confidence. Applies only to individual words.
+  - **Filename** the audio file that was transcribed
+  - **Transcription** contains a word in the transcribed speech.
+  - **Confidence** A score (0 to 1) that denotes transcription confidence. Applies only to individual words.
 
-
-Example output:
-
-<p align="center">
-<img src="./asset/example_output_2.png" alt="example output" width="75%"/>
-</p>
-
-<br/>
-
-### Plain text output
-
-If the **plain_text** entry in transcription_config.ini is marked as True, an addition plain text result file with the same name will be generated for every audio file transcription. The plain text result files contain only the transcribed words in a long line.
+When transcribing a conversation, an additional column **Speaker** will contain speaker identity alongside the transcription.
 
 Example output:
 
 <p align="center">
-<img src="./asset/example_output_2p.png" alt="example plain text output" width="75%"/>
+<img src="./asset/example_output_21.png" alt="example output" width="75%"/>
 </p>
 
 <br/>
 
-## Examples
+### Text-only output
 
-Here are three examples of EST usage.
+If the **text_only** variable is specified `True`, an additional text file with the same name will be generated for every .csv file created. The text-only files will contain results in running text format without Filename or Confidence entries. This output may be most useful for transcribing longer audio files.
+
+Example output:
+
+<p align="center">
+<img src="./asset/example_output_2p1.png" alt="example text-only output" width="75%"/>
+</p>
+
+<br/>
+
+## Transcription Examples
+
+Three examples are provide to illustrate commmon use cases. The audio files are in the designated folders included with the repository. Output will be saved in the given output folder - example_output.
+
+See also the [Use Cases](#Variable-Settings-for-Common-Use-Cases) section below.
+
+Check [tutorial](link) for a tutorial video on how to run the examples.
+<br/>
 
 ### Transcribe multiple short audio files
 
-The first example is to transcribe multiple audio files each containing a single word.
-To ensure EST works on your computer before using it on your own files, enter your own API token. Then change the rest of the configurations as shown below.
+Transcribe multiple audio files each containing a single word. Enter your API token, then set the variables as shown below.
 
-Example Configuration:
+Configuration settings
 
 <p align="center">
 <img src="./asset/example_gui_1.png" alt="example gui 1" width="75%"/>
 </p>
 
-Run the code. Three files containing three words will be transcribed. It will take approximately 1-2 minutes and will cost about Z cents.
+Run the script. Transcription will take approximately 1-2 minutes and will cost no more than 1 cent.
 
 Example csv output:
 
 <p align="center">
-<img src="./asset/example_output_1.png" alt="example output 1" width="75%"/>
+<img src="./asset/example_output_1.png" alt="example output 1" width="60%"/>
 </p>
 
 <p align="center">
-<img src="./asset/example_output_12.png" alt="example output 12" width="75%"/>
+<img src="./asset/example_output_12.png" alt="example output 12" width="60%"/>
 </p>
 
 <p align="center">
-<img src="./asset/example_output_13.png" alt="example output 13" width="75%"/>
+<img src="./asset/example_output_13.png" alt="example output 13" width="60%"/>
 </p>
 
 <br/>
 
-### Transcriibe an audio file of a sentence
+### Transcribe two audio files each containing a sentence
 
-The second example is to transcribe one audio file containing a sentence.
-Change your configurations as shown below.
+Enter your API token, then set the variables as shown below.
 
-Example Configuration:
+Configuration settings
 
 <p align="center">
 <img src="./asset/example_gui_2.png" alt="example gui 2" width="75%"/>
 </p>
 
-Run the code. One file containing a sentence will be transcribed. It will take approximately 1 minutes and will cost about Z cents.
+Run the code. Transcription will take approximately 1 minute and will cost no more than 1 cent.
 
 Example csv output:
 
 <p align="center">
-<img src="./asset/example_output_2.png" alt="example output 2" width="75%"/>
+<img src="./asset/example_output_21.png" alt="example output 2" width="75%"/>
 </p>
 
-Example plain text output:
+<p align="center">
+<img src="./asset/example_output_22.png" alt="example output 2" width="75%"/>
+</p>
+
+Example text-only output:
 
 <p align="center">
-<img src="./asset/example_output_2p.png" alt="example plain text output 2" width="75%"/>
+<img src="./asset/example_output_2p1.png" alt="example text-only output 2" width="75%"/>
+</p>
+
+<p align="center">
+<img src="./asset/example_output_2p2.png" alt="example text-only output 2" width="75%"/>
 </p>
 
 <br/>
 
-### Transcriibe an audio file of a two-speaker conversation
+### Transcriibe an audio file containing a two-speaker conversation
 
-The last example is to transcribe one audio file containing a two-speaker conversation.
-Change your configurations as shown below.
+Enter your API token, then set the variables as shown below.
 
-Example Configuration:
+Configuration settings:
 
 <p align="center">
 <img src="./asset/example_gui_3.png" alt="example gui 3" width="75%"/>
 </p>
 
-Run the code. One file containing a conversation will be transcribed. It will take approximately 1 minutes and will cost about Z cents.
+Run the code. Transcription will take approximately 1 minute and will cost no more than 1 cent.
 
 First several lines of the example csv output:
 
@@ -278,15 +296,43 @@ First several lines of the example csv output:
 <img src="./asset/example_output_3.png" alt="example output 3" width="75%"/>
 </p>
 
-Example plain text output:
+Example txt output:
 
 <p align="center">
-<img src="./asset/example_output_3p.png" alt="example plain text output 3" width="75%"/>
+<img src="./asset/example_output_3p.png" alt="example text-only output 3" width="75%"/>
 </p>
+
+<br/><br/>
+
+
+## Language Availability
+
+Rev AI engine supports speech transcription in 36 languages. ([Rev AI supported languages](https://www.rev.ai/languages)). Some variables are available only for English. Unavailable variables will be automatically ignored.
+
+
+<br/><br/>
+
+## Variable Settings for Common Use Cases
+
+This table provides the variable settings for the above three examples of different use cases as well as a few additional one. **Not available** indicates that variable settings are not supported in the use case.
+
+|                    | *English*                                                       |||| *Other languages*                                            ||||
+| -----------------  | -------------- | ------------------ | ---------- | --------------- | --------------- | ------------------- | ---------------- | --------------- |
+|                    | Isolated words | Concatenated words/sentences | Sentence   | Conversation    | Isolated words  | Concatenated words  | Sentence         | Conversation    |
+| concatenate_input  | False          | True               | False      | False           | False           | True                | False            | False           |
+| text-only          | True           | True               | True       | True            | True            | True                | True             | True            |
+| skip_diarization   | True           | True               | True       | False           | True            | True                | True             | False           |
+| skip_punctuation   | True           | True               | True       | True            |**not available**|**not available**    | **not available**|**not available**|
+| remove_disfluencies| True           | True               | True       | True            |**not available**|**not available**    | **not available**|**not available**|
+| speaker_channels_count| 1           | 1                  | 1          | None            |**not available**|**not available**    | **not available**|**not available**|
+| language           | en             | en                 | en         | en              | es/fr/de/etc.   | es/fr/de/etc.       | es/fr/de/etc.    | es/fr/de/etc.   |
+| delete_after_seconds| None          | None               | None       | None            | None            | None                | None             | None            |
+
+
 
 <br/><br/>
 
 ## Further Documentation
 
-
-Please familiarize yourself with the accompanying manuscript to ensure your EST settings are appropriate for your needs. There we describe use cases from transcribing single words to conversations between two people, discuss efficiencies and drawbacks to concatenation, job management and job/file deletion.
+The [manuscript](link) accompanying this repository provides additional detail on script usage and transcription variables.
+See also [Rev AI documentation](https://docs.rev.ai/get-started/).

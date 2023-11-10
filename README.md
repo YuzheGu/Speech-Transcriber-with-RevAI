@@ -1,6 +1,6 @@
-# Speech Transcriber using Rev AI (STR)
+# Speech Transcriber with Rev AI (STR)
 
-A Python script that simplifies speech-to-text transcription of audio files using the Rev AI engine. Using a GUI or the command line, transcription of a folder of files is performed in one call, and  transcriptions are saved in csv files.
+A Python script that simplifies speech-to-text transcription of audio files using the Rev AI engine. Using a GUI or the command line, transcription of a folder of files is performed in one call, and  transcriptions are saved in .csv and .txt files.
 
 ## Contents
 1. [Requirements](#Requirements)
@@ -19,7 +19,9 @@ A Python script that simplifies speech-to-text transcription of audio files usin
 
 2. Python >= 3.7. We recommend installing [miniconda](https://docs.conda.io/projects/miniconda/en/latest/) if Python it is not installed on your computer.
 
-3. Familiarity with using the command line tool: Check [command line tools tutorial](https://www.codecademy.com/article/command-line-commands) for instructions.
+3. Familiarity with using the command line: Check [command line tools tutorial](https://www.codecademy.com/article/command-line-commands) for instructions.
+
+4. Audio file formats supported by STR: .wav, .mp3, .ogg, .opus, .flac, and .webm.
 
 <br/><br/>
 
@@ -27,23 +29,23 @@ A Python script that simplifies speech-to-text transcription of audio files usin
 
 ### Obtain a Rev AI API token
 
-1. Create an account at [rev.ai](https://www.rev.ai/).
+1. Create an account at [Rev AI](https://www.rev.ai/).
 
 2. Go to the Access Token tab. Generate an access token and save it in a safe place. You will need it later.
 
-A new account is credited with 5 hours of free transcription. After exceeding this limit, you will be charged. See [Rev AI pricing](https://www.rev.ai/pricing) for details.
+A new account is credited with $6.00 of free transcription. After exceeding this limit, you will be charged. See [Rev AI pricing](https://www.rev.ai/pricing) for details.
 
 <br/><br/>
 
 ### Install dependencies
 Two Python dependencies are required.
 
-**pydub** is needed to manipulate audio files. Run this line of code at the command line tool:
+**pydub** is needed to manipulate audio files. Run this line of code at the command line:
 ```bash
 pip3 install pydub
 ```
 
-**rev_ai** is needed to submit transcription requests to the Rev AI server. Run this line of code at the command line tool:
+**rev_ai** is needed to submit transcription requests to the Rev AI server. Run this line of code at the command line:
 ```bash
 pip3 install rev_ai
 ```
@@ -54,7 +56,7 @@ pip3 install rev_ai
 
 Skip this step if you are transcribing **only** .wav files.
 
-If you are transcribing audio files that were recorded in a format other than .wav (e.g. .mp3, .ogg), install FFmpeg. Follow the steps described [here](https://www.hostinger.com/tutorials/how-to-install-ffmpeg) based on your operating system. See below for details on the file formats supported by STR.
+If you are transcribing audio files that were recorded in a format other than .wav (e.g. .mp3, .ogg), install FFmpeg. Follow the steps described [here](https://www.hostinger.com/tutorials/how-to-install-ffmpeg) based on your operating system. See [Requirements](#Requirements) for details on the file formats supported by STR.
 
 <br/>
 
@@ -133,8 +135,11 @@ Run the script from an IDE or from the command line using this line of code afte
 python3 str.py
 ```
 
+Transcription messages will appear in the command line that inform you of what the program is currently doing and when the program has finished transcription.
 
-The results of your transcription will appear in your output file after each audio file is transcribed. This may take a few minutes.
+You will see "Configuration check passed." if all transcription variables have valid values. If there are errors in the entries, error messages will appear and instruct you where the errors are. Once the errors are fixed, run the script again to transcribe your audio.
+
+Once all audio files are transcribed, you will see the message "All transcription is finished", and your transcription file will appear in your output folder. This may take a few minutes.
 
 <br/>
 
@@ -195,9 +200,9 @@ Example output:
 
 <br/>
 
-### Text-only output
+### txt output
 
-If the **text_only** variable is specified `True`, an additional text file with the same name will be generated for every .csv file created. The text-only files will contain results in running text format without Filename or Confidence entries. This output may be most useful for transcribing longer audio files.
+If the **text_only** variable is specified `True`, an additional .txt file with the same name will be generated for every .csv file created. The .txt files will contain results in running text format without Filename or Confidence entries. This output may be most useful for transcribing longer audio files.
 
 Example output:
 
@@ -213,14 +218,13 @@ Three examples are provide to illustrate commmon use cases. The audio files are 
 
 See also the [Use Cases](#Variable-Settings-for-Common-Use-Cases) section below.
 
-Check [tutorial](link) for a tutorial video on how to run the examples.
 <br/>
 
 ### Transcribe multiple short audio files
 
 Transcribe multiple audio files each containing a single word. Enter your API token, then set the variables as shown below.
 
-Configuration settings
+Configuration settings:
 
 <p align="center">
 <img src="./asset/example_gui_1.png" alt="example gui 1" width="75%"/>
@@ -248,7 +252,7 @@ Example csv output:
 
 Enter your API token, then set the variables as shown below.
 
-Configuration settings
+Configuration settings:
 
 <p align="center">
 <img src="./asset/example_gui_2.png" alt="example gui 2" width="75%"/>
@@ -266,7 +270,7 @@ Example csv output:
 <img src="./asset/example_output_22.png" alt="example output 2" width="75%"/>
 </p>
 
-Example text-only output:
+Example txt output:
 
 <p align="center">
 <img src="./asset/example_output_2p1.png" alt="example text-only output 2" width="75%"/>
@@ -278,7 +282,7 @@ Example text-only output:
 
 <br/>
 
-### Transcriibe an audio file containing a two-speaker conversation
+### Transcribe an audio file containing a two-speaker conversation
 
 Enter your API token, then set the variables as shown below.
 
@@ -334,5 +338,5 @@ This table provides the variable settings for the above three examples of differ
 
 ## Further Documentation
 
-The [manuscript](link) accompanying this repository provides additional detail on script usage and transcription variables.
+The [manuscript](https://buckeyemailosu-my.sharepoint.com/:b:/g/personal/gu_1016_buckeyemail_osu_edu/ESThNiQW7YNFuxzoTDelUpwBik6gflpb4HTQkhRYaRcOmQ?e=SaJk0e) accompanying this repository provides additional detail on script usage and transcription variables.
 See also [Rev AI documentation](https://docs.rev.ai/get-started/).

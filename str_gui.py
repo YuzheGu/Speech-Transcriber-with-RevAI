@@ -71,22 +71,27 @@ def submit_click():
         
 def CHAT_switch():
     skip_diarization.delete(0, 'end')
-    skip_diarization.insert(0, 'True')
+    skip_diarization.insert(0, 'False')
     skip_diarization.config(state='disabled')
     
     skip_punctuation.delete(0, 'end')
-    skip_punctuation.insert(0, 'True')
+    skip_punctuation.insert(0, 'False')
     skip_punctuation.config(state='disabled')
     
     remove_disfluencies.delete(0, 'end')
-    remove_disfluencies.insert(0, 'True')
+    remove_disfluencies.insert(0, 'False')
     remove_disfluencies.config(state='disabled')
+    
+    speaker_channels_count.delete(0, 'end')
+    speaker_channels_count.insert(0, 'None')
+    speaker_channels_count.config(state='disabled')
 
 
 def customize_switch():
     skip_diarization.config(state='normal')
     skip_punctuation.config(state='normal')
     remove_disfluencies.config(state='normal')
+    speaker_channels_count.config(state='normal')
 
 def mode_switch():
     global confirm_ctr

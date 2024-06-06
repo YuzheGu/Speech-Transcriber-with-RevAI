@@ -226,14 +226,13 @@ def transcribe_speech(audiofile, client_api, message_label):
     speaker_channels_count = None if config['transcribe.config']['speaker_channels_count'] == 'None' else int(config['transcribe.config']['speaker_channels_count'])
     # delete after seconds is a positive integer or None
     delete_after_seconds = None if config['transcribe.config']['delete_after_seconds'] == 'None' else int(config['transcribe.config']['delete_after_seconds'])
-
     if config['transcribe.config']['language'] == 'en':
         job = client_api.submit_job_local_file(
             filename = audiofile,  # file name
-            skip_diarization = True if CHAT_mode else config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
-            skip_punctuation = True if CHAT_mode else config.getboolean('transcribe.config', 'skip_punctuation'),  # removes punctuations
-            remove_disfluencies = True if CHAT_mode else config.getboolean('transcribe.config', 'remove_disfluencies'),  # removes speech disfluencies ("uh", "um"). Only avalable for English, Spanish, French languages
-            speaker_channels_count = speaker_channels_count,  # Number of audio channels. Only avalable for English, Spanish, French languages
+            skip_diarization = False if CHAT_mode else config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
+            skip_punctuation = False if CHAT_mode else config.getboolean('transcribe.config', 'skip_punctuation'),  # removes punctuations
+            remove_disfluencies = False if CHAT_mode else config.getboolean('transcribe.config', 'remove_disfluencies'),  # removes speech disfluencies ("uh", "um"). Only avalable for English, Spanish, French languages
+            speaker_channels_count = None if CHAT_mode else speaker_channels_count,  # Number of audio channels. Only avalable for English, Spanish, French languages
             language = config['transcribe.config']['language'],  # language of the audio file(s)
             delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
             #verbatim = True,  # transcribe every syllable
@@ -245,7 +244,7 @@ def transcribe_speech(audiofile, client_api, message_label):
     else:
         job = client_api.submit_job_local_file(
             filename = audiofile,  # file name
-            skip_diarization = True if CHAT_mode else config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
+            skip_diarization = False if CHAT_mode else config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
             language = config['transcribe.config']['language'],  # language of the audio file(s)
             delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
             #verbatim = True,  # transcribe every syllable

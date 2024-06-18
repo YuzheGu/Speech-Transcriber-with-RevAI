@@ -76,34 +76,32 @@ Clone the repository if you are familiar with Git. Otherwise follow these steps.
 
 <br/>
 
-## Usage
 
-Users who prefer to use the GUI should skip to the [GUI Usage](#GUI-usage) section. If you have limited programming experience, we recommend you use the GUI.
+## GUI usage
 
-### Edit transcription_config.ini in a text editor
+Use of the GUI allows you to enter your access token, input and output folders, and alter transcription variables without directly editing the configuration file.
 
-The transcription_config.ini file stores your API token, input and output folder names, and transcription variables.
+1. Run the script from an IDE or from the command line using this line of code after navigating to your project folder
 
-#### Open Transcription_config.ini in a text editor
+```bash
+python3 str_gui.py
+```
 
-Example:
+2. Alter the variables in the pop-up window to fit your transcription needs. See [transcription variables](#Transcription-variables) for a description of each variable.
 
-<p align="center">
-<img src="./asset/example_config_file.png" alt="config file example" width="75%"/>
-</p>
-
-#### Transcription variables
+### Transcription variables
 
 These variables must be specified
 
   - **API token** - Your API token.
   - **input_folder** - The name of the folder that stores your audio files.
   - **output_folder** - The name of the folder that will store transcriptions.
+  - **output_format** - Output format of the text-only (.txt) file. Choose `CHAT` to have a CHAT format output file. Choose `customize` to have a customized format output file. Be sure to click `confirm` before start transcribing.
 
 Optional settings to customize transcription
 
   - **concatenate_input** - Default: `False`. Specifies whether audio files will be combined into one long audio file prior to transcription. Concatenation speeds up transcription and is less costly when individual sound files contain one or two spoken words. Specify `True` to concatenate your audio files. Specify `False` to transcribe each audio file separately.
-  - **text_only** - Default: `False`. Specify if a text-only (.txt file) will be generated in addition to a .csv file. Specify `True` to have transcriptions also output in a .txt file. Specify `False` to have transcription only in .csv files. Most useful for transcribing sentences and conversations. See [output](#Output-formats) for details on output formats and examples.
+  - **text_only** - Default: `False`. Specify if a text-only (.txt) file will be generated in addition to a .csv file. Specify `True` to have transcriptions also output in a .txt file. Specify `False` to have transcription only in .csv files. Most useful for transcribing sentences and conversations. See [output](#Output-formats) for details on output formats and examples.
 
 Transcription settings
 
@@ -120,40 +118,6 @@ These additional transcription variables are included in str.py but commented ou
   - **remove_atmospherics** - Default: `False`. Specify `True`, if you would like to remove `<laugh>`, `<affirmative>`, etc., otherwise specify `False`.
   - **filter_profanity** - Default: `False`. Specify `True`, if you would like to filter profanity, otherwise specify `False`.
   - **custom_vocabularies** - Default: `None`. Provide your own vocabulary to improve transcription accuracy of these words (e.g. unique names, specific terminologies, etc.). Check [custom vocabulary](https://docs.rev.ai/api/custom-vocabulary/#:~:text=Custom%20vocabularies%20are%20submitted%20as,to%201000%20for%20other%20languages) for details.
-
-**Save the file when finished.**
-
-
-
-<br/>
-
-### Run the script
-
-Run the script from an IDE or from the command line using this line of code after navigating to your project folder.
-
-```bash
-python3 str.py
-```
-
-Transcription messages will appear in the command line that inform you of what the program is currently doing and when the program has finished transcription.
-
-You will see "Configuration check passed." if all transcription variables have valid values. If there are errors in the entries, error messages will appear and instruct you where the errors are. Once the errors are fixed, run the script again to transcribe your audio.
-
-Once all audio files are transcribed, you will see the message "All transcription is finished", and your transcription file will appear in your output folder. This may take a few minutes.
-
-<br/>
-
-## GUI usage
-
-Use of the GUI allows you to enter your access token, input and output folders, and alter transcription variables without directly editing the configuration file.
-
-1. Run the script from an IDE or from the command line using this line of code after navigating to your project folder
-
-```bash
-python3 str_gui.py
-```
-
-2. Alter the variables in the pop-up window to fit your transcription needs. See [transcription variables](#Transcription-variables) for a description of each variable.
 
 
 3. Click "Save & Transcribe" to transcribe your audio files.
@@ -208,6 +172,12 @@ Example output:
 
 <p align="center">
 <img src="./asset/example_output_2p1.png" alt="example text-only output" width="75%"/>
+</p>
+
+If **output_format** is specified as `CHAT`. The .txt file will be output in the CHAT format.
+
+<p align="center">
+<img src="./asset/example_output_CHAT.png" alt="example CHAT output" width="75%"/>
 </p>
 
 <br/>
@@ -305,6 +275,25 @@ Example txt output:
 <p align="center">
 <img src="./asset/example_output_3p.png" alt="example text-only output 3" width="75%"/>
 </p>
+
+
+If you would like to have the txt output in CHAT format, set the variables as shown below.
+
+<p align="center">
+<img src="./asset/example_gui_CHAT.png" alt="example gui 3" width="75%"/>
+</p>
+
+Example CHAT output:
+
+<p align="center">
+<img src="./asset/example_output_CHAT.png" alt="example text-only output 3" width="75%"/>
+</p>
+
+
+<p align="center">
+<img src="./asset/example_output_3p.png" alt="example text-only output 3" width="75%"/>
+</p>
+
 
 <br/><br/>
 

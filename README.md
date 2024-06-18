@@ -6,12 +6,11 @@ A Python script that simplifies speech-to-text transcription of audio files usin
 1. [Requirements](#Requirements)
 2. [Setup](#Setup)
 3. [Usage](#Usage)
-4. [GUI usage](#GUI-usage)
-5. [Output](#Output-formats)
-6. [Examples of STR usage](#Transcription-Examples)
-7. [Other Languages](#Other-Languages)
-8. [Variable Settings for Common Use Cases](#Variable-Settings-for-Common-Use-Cases)
-9. [Further Documentation](#Further-Documentation)
+4. [Output](#Output-formats)
+5. [Examples of STR usage](#Transcription-Examples)
+6. [Other Languages](#Other-Languages)
+7. [Variable Settings for Common Use Cases](#Variable-Settings-for-Common-Use-Cases)
+8. [Further Documentation](#Further-Documentation)
 
 
 ## Requirements
@@ -77,7 +76,7 @@ Clone the repository if you are familiar with Git. Otherwise follow these steps.
 <br/>
 
 
-## GUI usage
+## Usage
 
 Use of the GUI allows you to enter your access token, input and output folders, and alter transcription variables without directly editing the configuration file.
 
@@ -87,7 +86,7 @@ Use of the GUI allows you to enter your access token, input and output folders, 
 python3 str_gui.py
 ```
 
-2. Alter the variables in the pop-up window to fit your transcription needs. See [transcription variables](#Transcription-variables) for a description of each variable.
+2. Alter the variables in the pop-up window to fit your transcription needs. See below for a description of each variable.
 
 ### Transcription variables
 
@@ -288,12 +287,6 @@ Example CHAT output:
 <p align="center">
 <img src="./asset/example_output_CHAT.png" alt="example text-only output 3" width="75%"/>
 </p>
-
-
-<p align="center">
-<img src="./asset/example_output_3p.png" alt="example text-only output 3" width="75%"/>
-</p>
-
 
 <br/><br/>
 

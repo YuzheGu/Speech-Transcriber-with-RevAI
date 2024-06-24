@@ -88,7 +88,7 @@ def config_check(config):
     if not os.path.exists(config['folders']['output_folder']):
         console_message += 'Error: Output folder does not exist, so we made it. It is named "output"\n'
         os.mkdir(config['folders']['output_folder'])
-    
+
     if config['output_format']['format'] != 'CHAT' and config['output_format']['format'] != 'customize':
         console_message += 'Error: output format should be CHAT or customize.\n'
         valid = False
@@ -230,7 +230,7 @@ def transcribe_speech(audiofile, client_api, message_label):
         job = client_api.submit_job_local_file(
             filename = audiofile,  # file name
             skip_diarization = False if CHAT_mode else config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
-            skip_punctuation = False if CHAT_mode else config.getboolean('transcribe.config', 'skip_punctuation'),  # removes punctuations
+            skip_punctuation = True if CHAT_mode else config.getboolean('transcribe.config', 'skip_punctuation'),  # removes punctuations
             remove_disfluencies = False if CHAT_mode else config.getboolean('transcribe.config', 'remove_disfluencies'),  # removes speech disfluencies ("uh", "um"). Only avalable for English, Spanish, French languages
             speaker_channels_count = None if CHAT_mode else speaker_channels_count,  # Number of audio channels. Only avalable for English, Spanish, French languages
             language = config['transcribe.config']['language'],  # language of the audio file(s)
@@ -346,8 +346,8 @@ def save_transcription(output_data, output_file_name_def, text_only, CHAT_output
         csv_writer.writeheader()
         csv_writer.writerows(output_data)
     if text_only:
-        
-        
+
+
         if CHAT_output:
             text_filename = output_file_name_def.rsplit('.')[0] + '.cha'
             if 'speaker' not in output_data[0]: # not a conversation
@@ -407,11 +407,11 @@ def save_transcription(output_data, output_file_name_def, text_only, CHAT_output
                             outtextfile.write(result_word['transcription'])
                         else:
                             outtextfile.write(''.join((' ', result_word['transcription'])))
-                            
-        
 
 
-    
+
+
+
 
 
 # Delete temp/ and its contents

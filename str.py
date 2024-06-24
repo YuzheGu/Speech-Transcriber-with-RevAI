@@ -327,18 +327,18 @@ def save_transcription(output_data, output_file_name_def, text_only, CHAT_output
     }
 
     header_text = (
-        "@Begin \n"
-        "@Languages: \n"
-        "@Participants: \n"
-        "@ID: \n"
-        "@ID: \n"
-        "@ID: \n"
-        "@Media: \n"
-        "@Location: \n"
-        "@Recording Quality: \n"
-        "@Transcriber: \n"
-        "@Date: \n"
-        "@Situation: "
+        "@Begin\n"
+        "@Languages:\n"
+        "@Participants:\n"
+        "@ID:\n"
+        "@ID:\n"
+        "@ID:\n"
+        "@Media:\n"
+        "@Location:\n"
+        "@Recording Quality:\n"
+        "@Transcriber:\n"
+        "@Date:\n"
+        "@Situation:"
     )
 
     # Ending text - same as CHAT file

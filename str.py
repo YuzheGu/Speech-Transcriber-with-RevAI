@@ -34,7 +34,6 @@ from tkinter import *
 from tkinter import ttk
 import sys
 import configparser
-from str import *
 from pydub import AudioSegment, utils
 from rev_ai import apiclient
 import string
@@ -235,7 +234,7 @@ def transcribe_speech(audiofile, client_api, message_label):
         job = client_api.submit_job_local_file(
             filename = audiofile,  # file name
             skip_diarization = False if CHAT_mode else config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
-            skip_punctuation = False if CHAT_mode else config.getboolean('transcribe.config', 'skip_punctuation'),  # removes punctuations
+            skip_punctuation = True if CHAT_mode else config.getboolean('transcribe.config', 'skip_punctuation'),  # removes punctuations
             remove_disfluencies = False if CHAT_mode else config.getboolean('transcribe.config', 'remove_disfluencies'),  # removes speech disfluencies ("uh", "um"). Only avalable for English, Spanish, French languages
             speaker_channels_count = None if CHAT_mode else speaker_channels_count,  # Number of audio channels. Only avalable for English, Spanish, French languages
             language = config['transcribe.config']['language'],  # language of the audio file(s)
@@ -559,7 +558,7 @@ def CHAT_switch():
     skip_diarization.config(state='disabled')
     
     skip_punctuation.delete(0, 'end')
-    skip_punctuation.insert(0, 'False')
+    skip_punctuation.insert(0, 'True')
     skip_punctuation.config(state='disabled')
     
     remove_disfluencies.delete(0, 'end')
@@ -770,3 +769,5 @@ message_label.place(x= 30, y = 580)
 sys.stdout.write = redirect_text
 # run the GUI
 root.mainloop()
+
+

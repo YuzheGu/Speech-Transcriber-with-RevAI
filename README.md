@@ -7,7 +7,7 @@ A Python script that simplifies speech-to-text transcription of audio files usin
 2. [Setup](#Setup)
 3. [Usage](#Usage)
 4. [Output](#Output-formats)
-5. [Examples of STR usage](#Transcription-Examples)
+5. [Example of STR usage](#Transcription-Example)
 6. [Other Languages](#Other-Languages)
 7. [Variable Settings for Common Use Cases](#Variable-Settings-for-Common-Use-Cases)
 8. [Further Documentation](#Further-Documentation)
@@ -83,7 +83,7 @@ Use of the GUI allows you to enter your access token, input and output folders, 
 1. Run the script from an IDE or from the command line using this line of code after navigating to your project folder
 
 ```bash
-python3 str_gui.py
+python3 str.py
 ```
 
 2. Alter the variables in the pop-up window to fit your transcription needs. See below for a description of each variable.
@@ -95,7 +95,7 @@ These variables must be specified
   - **API token** - Your API token.
   - **input_folder** - The name of the folder that stores your audio files.
   - **output_folder** - The name of the folder that will store transcriptions.
-  - **output_format** - Output format of the text-only (.txt) file. Choose `CHAT` to have a CHAT format output file. Choose `customize` to have a customized format output file. Be sure to click `confirm` before start transcribing.
+  - **output_format** - Output format of the text-only (.txt) file. Choose `CHAT` to have a CHAT format output file. Choose `unformatted` to have a customized unformatted output file. Be sure to click `confirm` before start transcribing.
 
 Optional settings to customize transcription
 
@@ -163,91 +163,29 @@ Example output:
 
 <br/>
 
-### txt output
+### text output
 
-If the **text_only** variable is specified `True`, an additional .txt file with the same name will be generated for every .csv file created. The .txt files will contain results in running text format without Filename or Confidence entries. This output may be most useful for transcribing longer audio files.
+If the **text_only** variable is specified `True`, an additional .cha file with the same name will be generated for every .csv file created. The .cha files will contain results in CHAT format.
 
 Example output:
-
-<p align="center">
-<img src="./asset/example_output_2p1.png" alt="example text-only output" width="75%"/>
-</p>
-
-If **output_format** is specified as `CHAT`. The .txt file will be output in the CHAT format.
 
 <p align="center">
 <img src="./asset/example_output_CHAT.png" alt="example CHAT output" width="75%"/>
 </p>
 
+If **output_format** is specified as `unformatted`. The unformatted text file will be output in a .txt file.
+
+<p align="center">
+<img src="./asset/example_output_2p1.png" alt="example text-only output" width="75%"/>
+</p>
+
 <br/>
 
-## Transcription Examples
+## Transcription Example
 
-Three examples are provide to illustrate commmon use cases. The audio files are in the designated folders included with the repository. Output will be saved in the given output folder - example_output.
+This example is provide to illustrate a commmon use case. The audio file is in the designated folder included with the repository. Output will be saved in the given output folder - example_output.
 
 See also the [Use Cases](#Variable-Settings-for-Common-Use-Cases) section below.
-
-<br/>
-
-### Transcribe multiple short audio files
-
-Transcribe multiple audio files each containing a single word. Enter your API token, then set the variables as shown below.
-
-Configuration settings:
-
-<p align="center">
-<img src="./asset/example_gui_1.png" alt="example gui 1" width="75%"/>
-</p>
-
-Run the script. Transcription will take approximately 1-2 minutes and will cost no more than 1 cent.
-
-Example csv output:
-
-<p align="center">
-<img src="./asset/example_output_1.png" alt="example output 1" width="60%"/>
-</p>
-
-<p align="center">
-<img src="./asset/example_output_12.png" alt="example output 12" width="60%"/>
-</p>
-
-<p align="center">
-<img src="./asset/example_output_13.png" alt="example output 13" width="60%"/>
-</p>
-
-<br/>
-
-### Transcribe two audio files each containing a sentence
-
-Enter your API token, then set the variables as shown below.
-
-Configuration settings:
-
-<p align="center">
-<img src="./asset/example_gui_2.png" alt="example gui 2" width="75%"/>
-</p>
-
-Run the code. Transcription will take approximately 1 minute and will cost no more than 1 cent.
-
-Example csv output:
-
-<p align="center">
-<img src="./asset/example_output_21.png" alt="example output 2" width="75%"/>
-</p>
-
-<p align="center">
-<img src="./asset/example_output_22.png" alt="example output 2" width="75%"/>
-</p>
-
-Example txt output:
-
-<p align="center">
-<img src="./asset/example_output_2p1.png" alt="example text-only output 2" width="75%"/>
-</p>
-
-<p align="center">
-<img src="./asset/example_output_2p2.png" alt="example text-only output 2" width="75%"/>
-</p>
 
 <br/>
 
@@ -258,7 +196,7 @@ Enter your API token, then set the variables as shown below.
 Configuration settings:
 
 <p align="center">
-<img src="./asset/example_gui_3.png" alt="example gui 3" width="75%"/>
+<img src="./asset/example_gui_CHAT.png" alt="example gui 3" width="75%"/>
 </p>
 
 Run the code. Transcription will take approximately 1 minute and will cost no more than 1 cent.
@@ -269,23 +207,22 @@ First several lines of the example csv output:
 <img src="./asset/example_output_3.png" alt="example output 3" width="75%"/>
 </p>
 
-Example txt output:
-
-<p align="center">
-<img src="./asset/example_output_3p.png" alt="example text-only output 3" width="75%"/>
-</p>
-
-
-If you would like to have the txt output in CHAT format, set the variables as shown below.
-
-<p align="center">
-<img src="./asset/example_gui_CHAT.png" alt="example gui 3" width="75%"/>
-</p>
-
 Example CHAT output:
 
 <p align="center">
 <img src="./asset/example_output_CHAT.png" alt="example text-only output 3" width="75%"/>
+</p>
+
+If you want to output the unformatted text file instead of a CHAT formatted file, set the variables as shown below.
+
+<p align="center">
+<img src="./asset/example_gui_3.png" alt="example gui 3" width="75%"/>
+</p>
+
+Example unformatted output:
+
+<p align="center">
+<img src="./asset/example_output_3p.png" alt="example text-only output 3" width="75%"/>
 </p>
 
 <br/><br/>
@@ -298,21 +235,20 @@ Rev AI engine supports speech transcription in 36 languages. ([Rev AI supported 
 
 <br/><br/>
 
-## Variable Settings for Common Use Cases
+## Variable Settings for CHAT use cases
 
-This table provides the variable settings for the above three examples of different use cases as well as a few additional one. **Not available** indicates that variable settings are not supported in the use case.
+This table provides the variable settings for CHAT format transcription in different languages. **Not available** indicates that variable settings are not supported in the use case.
 
-|                    | *English*                                                       |||| *Other languages*                                            ||||
-| -----------------  | -------------- | ------------------ | ---------- | --------------- | --------------- | ------------------- | ---------------- | --------------- |
-|                    | Isolated words | Concatenated words/sentences | Sentence   | Conversation    | Isolated words  | Concatenated words  | Sentence         | Conversation    |
-| concatenate_input  | False          | True               | False      | False           | False           | True                | False            | False           |
-| text-only          | True           | True               | True       | True            | True            | True                | True             | True            |
-| skip_diarization   | True           | True               | True       | False           | True            | True                | True             | False           |
-| skip_punctuation   | True           | True               | True       | True            |**not available**|**not available**    | **not available**|**not available**|
-| remove_disfluencies| True           | True               | True       | True            |**not available**|**not available**    | **not available**|**not available**|
-| speaker_channels_count| 1           | 1                  | 1          | None            |**not available**|**not available**    | **not available**|**not available**|
-| language           | en             | en                 | en         | en              | es/fr/de/etc.   | es/fr/de/etc.       | es/fr/de/etc.    | es/fr/de/etc.   |
-| delete_after_seconds| None          | None               | None       | None            | None            | None                | None             | None            |
+|                    | *English*       | *Other languages* |
+| -----------------  | --------------- | --------------- |
+| concatenate_input  |  False          | False           |
+| text-only          | True            | True            |
+| skip_diarization   | False           | False           |
+| skip_punctuation   | True            |**not available**|
+| remove_disfluencies| True            |**not available**|
+| speaker_channels_count| None         |**not available**|
+| language           | en              | es/fr/de/etc.   |
+| delete_after_seconds| None           | None            |
 
 
 

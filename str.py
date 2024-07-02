@@ -45,16 +45,16 @@ confirm_ctr = 0
 
 #config file entry names
 # a full list of all entries in the config file - used to check config file validity.
-config_entries = {'API.token':['token'],
+config_entries = {'API.token':['token', 'save_check'],
                   'folders':['input_folder', 'output_folder'],
                   'output_format': ['format'],
-                  'concatenation':['concatenate_input', 'text_only'],
-                  'transcribe.config':['skip_diarization', 'skip_punctuation', 'remove_disfluencies', 'speaker_channels_count', 'language', 'delete_after_seconds']
+                  'concatenation':['concatenate_input', 'csv_file'],
+                  'transcribe.config':['diarization', 'punctuation', 'remove_disfluencies', 'speaker_channels_count', 'language', 'delete_after_seconds']
                  }
 
 # the dict that stores all the entry inputs
 # used to organize GUI input and write to the config file.
-entry_inputs = {'token':'', 'input_folder':'', 'output_folder':'', 'format':'','concatenate_input':'', 'text_only':'', 'skip_diarization':'', 'remove_disfluencies':'',
+entry_inputs = {'token':'', 'save_check':'', 'input_folder':'', 'output_folder':'', 'format':'','concatenate_input':'', 'csv_file':'', 'diarization':'', 'remove_disfluencies':'',
                 'speaker_channels_count':'', 'language':'', 'delete_after_seconds':''}
 
 
@@ -83,6 +83,19 @@ def config_check(config):
     except Exception:
         console_message += 'Error: API token is invalid.\n'
         valid = False
+    
+    try:
+        save_check = config['API.token']['save_check']
+        if not save_check.isnumeric():
+            console_message += 'Error: API save check should be either 1 or 0.\n'
+            valid = False
+        if int(save_check) != 0 and int(save_check) != 1:
+            console_message += 'Error: API save check should be either 1 or 0.\n'
+            valid = False
+    except Exception:
+        console_message += 'Error: API save check should be either 1 or 0.\n'
+        valid = False
+    
 
     # Check input and output folders
     if not os.path.exists(config['folders']['input_folder']):
@@ -93,22 +106,22 @@ def config_check(config):
         console_message += 'Error: Output folder does not exist, so we made it. It is named "output"\n'
         os.mkdir(config['folders']['output_folder'])
     
-    if config['output_format']['format'] != 'CHAT' and config['output_format']['format'] != 'customize':
-        console_message += 'Error: output format should be CHAT or customize.\n'
+    if config['output_format']['format'] != 'CHAT' and config['output_format']['format'] != 'unformatted':
+        console_message += 'Error: output format should be CHAT or unformatted.\n'
         valid = False
 
     # checking for other boolean parameters
     if config['concatenation']['concatenate_input'] != "True" and config['concatenation']['concatenate_input'] != "False":
         console_message += 'Error: Input concatenate should be True or False.\n'
         valid = False
-    if config['concatenation']['text_only'] != "True" and config['concatenation']['text_only'] != "False":
-        console_message += 'Error: Plain text should be True or False.\n'
+    if config['concatenation']['csv_file'] != "True" and config['concatenation']['csv_file'] != "False":
+        console_message += 'Error: Csv only should be True or False.\n'
         valid = False
-    if config['transcribe.config']['skip_diarization'] != "True" and config['transcribe.config']['skip_diarization'] != "False":
-        console_message += 'Error: Skip diarization should be True or False.\n'
+    if config['transcribe.config']['diarization'] != "True" and config['transcribe.config']['diarization'] != "False":
+        console_message += 'Error: Diarization should be True or False.\n'
         valid = False
-    if config['transcribe.config']['skip_punctuation'] != "True" and config['transcribe.config']['skip_punctuation'] != "False":
-        console_message += 'Error: Skip punctuation should be True or False.\n'
+    if config['transcribe.config']['punctuation'] != "True" and config['transcribe.config']['punctuation'] != "False":
+        console_message += 'Error: Punctuation should be True or False.\n'
         valid = False
     if config['transcribe.config']['remove_disfluencies'] != "True" and config['transcribe.config']['remove_disfluencies'] != "False":
         console_message += 'Error: Remove disfluencies should be True or False.\n'
@@ -233,8 +246,8 @@ def transcribe_speech(audiofile, client_api, message_label):
     if config['transcribe.config']['language'] == 'en':
         job = client_api.submit_job_local_file(
             filename = audiofile,  # file name
-            skip_diarization = False if CHAT_mode else config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
-            skip_punctuation = True if CHAT_mode else config.getboolean('transcribe.config', 'skip_punctuation'),  # removes punctuations
+            skip_diarization = False if CHAT_mode else not config.getboolean('transcribe.config', 'diarization'),  # needed for conversations. Tries to match audio with speakers
+            skip_punctuation = True if CHAT_mode else not config.getboolean('transcribe.config', 'punctuation'),  # removes punctuations
             remove_disfluencies = False if CHAT_mode else config.getboolean('transcribe.config', 'remove_disfluencies'),  # removes speech disfluencies ("uh", "um"). Only avalable for English, Spanish, French languages
             speaker_channels_count = None if CHAT_mode else speaker_channels_count,  # Number of audio channels. Only avalable for English, Spanish, French languages
             language = config['transcribe.config']['language'],  # language of the audio file(s)
@@ -248,7 +261,7 @@ def transcribe_speech(audiofile, client_api, message_label):
     else:
         job = client_api.submit_job_local_file(
             filename = audiofile,  # file name
-            skip_diarization = False if CHAT_mode else config.getboolean('transcribe.config', 'skip_diarization'),  # needed for conversations. Tries to match audio with speakers
+            skip_diarization = False if CHAT_mode else not config.getboolean('transcribe.config', 'diarization'),  # needed for conversations. Tries to match audio with speakers
             language = config['transcribe.config']['language'],  # language of the audio file(s)
             delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
             #verbatim = True,  # transcribe every syllable
@@ -317,8 +330,8 @@ def transcribe_speech(audiofile, client_api, message_label):
 #Parameters:
 #   output_data - transcription data dict.
 #   output_file_name_def - the output file name.
-#   text_only - to output a plain text (TXT) version or not.
-def save_transcription(output_data, output_file_name_def, text_only, CHAT_output):
+#   csv_file - to output a csv version or not.
+def save_transcription(output_data, output_file_name_def, csv_file, CHAT_output):
     replace_dict = {
         "dr.": "Doctor",
         "mr.": "Mister",
@@ -343,21 +356,40 @@ def save_transcription(output_data, output_file_name_def, text_only, CHAT_output
 
     # Ending text - same as CHAT file
     footer_text = "\n@End"
-
-    keys_list = output_data[0].keys()
-    with open(output_file_name_def,'w', newline='', encoding = 'utf-8-sig') as outfile:
-        csv_writer = csv.DictWriter(outfile, keys_list)
-        csv_writer.writeheader()
-        csv_writer.writerows(output_data)
-    if text_only:
+    
+    if csv_file:
+        keys_list = output_data[0].keys()
+        csv_filename = output_file_name_def.rsplit('.')[0] + '.csv'
+        with open(csv_filename,'w', newline='', encoding = 'utf-8-sig') as outfile:
+            csv_writer = csv.DictWriter(outfile, keys_list)
+            csv_writer.writeheader()
+            csv_writer.writerows(output_data)       
         
-        
-        if CHAT_output:
-            text_filename = output_file_name_def.rsplit('.')[0] + '.cha'
-            if 'speaker' not in output_data[0]: # not a conversation
-                with open(text_filename,'w', newline='') as outtextfile:
-                    outtextfile.write(header_text)
-                    for result_word in output_data:
+    if CHAT_output:
+        text_filename = output_file_name_def
+        if 'speaker' not in output_data[0]: # not a conversation
+            with open(text_filename,'w', newline='') as outtextfile:
+                outtextfile.write(header_text)
+                for result_word in output_data:
+                    # no white space before a punctuation
+                    if result_word['transcription'] in string.punctuation:
+                        outtextfile.write(result_word['transcription'])
+                    else:
+                        if result_word['transcription'] in replace_dict:
+                            outtextfile.write(''.join((' ', replace_dict[result_word['transcription']])))
+                        else:
+                            outtextfile.write(''.join((' ', result_word['transcription'])))
+                outtextfile.write(footer_text)
+        else: # example use: conversation
+            current_speaker = -1
+            with open(text_filename,'w', newline='') as outtextfile:
+                outtextfile.write(header_text)
+                for result_word in output_data:
+                    # switch speaker
+                    if result_word['speaker'] != current_speaker:
+                        outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', result_word['transcription'])))
+                        current_speaker = result_word['speaker']
+                    else:
                         # no white space before a punctuation
                         if result_word['transcription'] in string.punctuation:
                             outtextfile.write(result_word['transcription'])
@@ -366,51 +398,32 @@ def save_transcription(output_data, output_file_name_def, text_only, CHAT_output
                                 outtextfile.write(''.join((' ', replace_dict[result_word['transcription']])))
                             else:
                                 outtextfile.write(''.join((' ', result_word['transcription'])))
-                    outtextfile.write(footer_text)
-            else: # example use: conversation
-                current_speaker = -1
-                with open(text_filename,'w', newline='') as outtextfile:
-                    outtextfile.write(header_text)
-                    for result_word in output_data:
-                        # switch speaker
-                        if result_word['speaker'] != current_speaker:
-                            outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ': ', result_word['transcription'])))
-                            current_speaker = result_word['speaker']
-                        else:
-                            # no white space before a punctuation
-                            if result_word['transcription'] in string.punctuation:
-                                outtextfile.write(result_word['transcription'])
-                            else:
-                                if result_word['transcription'] in replace_dict:
-                                    outtextfile.write(''.join((' ', replace_dict[result_word['transcription']])))
-                                else:
-                                    outtextfile.write(''.join((' ', result_word['transcription'])))
-                    outtextfile.write(footer_text)
-            return
+                outtextfile.write(footer_text)
+        return
 
-        text_filename = output_file_name_def.rsplit('.')[0] + '.txt'
-        if 'speaker' not in output_data[0]: # not a conversation
-            with open(text_filename,'w', newline='') as outtextfile:
-                for result_word in output_data:
+    text_filename = output_file_name_def.rsplit('.')[0] + '.txt'
+    if 'speaker' not in output_data[0]: # not a conversation
+        with open(text_filename,'w', newline='') as outtextfile:
+            for result_word in output_data:
+                # no white space before a punctuation
+                if result_word['transcription'] in string.punctuation:
+                    outtextfile.write(result_word['transcription'])
+                else:
+                    outtextfile.write(''.join((' ', result_word['transcription'])))
+    else: # example use: conversation
+        current_speaker = -1
+        with open(text_filename,'w', newline='') as outtextfile:
+            for result_word in output_data:
+                # switch speaker
+                if result_word['speaker'] != current_speaker:
+                    outtextfile.write(''.join(('\nspeaker ', result_word['speaker'], ': ', result_word['transcription'])))
+                    current_speaker = result_word['speaker']
+                else:
                     # no white space before a punctuation
                     if result_word['transcription'] in string.punctuation:
                         outtextfile.write(result_word['transcription'])
                     else:
                         outtextfile.write(''.join((' ', result_word['transcription'])))
-        else: # example use: conversation
-            current_speaker = -1
-            with open(text_filename,'w', newline='') as outtextfile:
-                for result_word in output_data:
-                    # switch speaker
-                    if result_word['speaker'] != current_speaker:
-                        outtextfile.write(''.join(('\nspeaker ', result_word['speaker'], ': ', result_word['transcription'])))
-                        current_speaker = result_word['speaker']
-                    else:
-                        # no white space before a punctuation
-                        if result_word['transcription'] in string.punctuation:
-                            outtextfile.write(result_word['transcription'])
-                        else:
-                            outtextfile.write(''.join((' ', result_word['transcription'])))
                             
         
 
@@ -444,7 +457,7 @@ def main(message_label):
     #  For short files, this is more efficient and less costly.
     #True - concatenated. False - individual files
     concatenate_input = config.getboolean('concatenation', 'concatenate_input')
-    text_only = config.getboolean('concatenation', 'text_only')
+    csv_file = config.getboolean('concatenation', 'csv_file')
 
     # Used as part of the transcription output filename
     date_time = datetime.datetime.now()
@@ -481,8 +494,8 @@ def main(message_label):
         transcript = transcribe_speech(audiofile, client_api, message_label)
 
         # Save all trascriptions in output folder
-        output_filename = ''.join((output_folder + 'concatenated_transcription_' + date_today + '.csv'))
-        save_transcription(transcript, output_filename, text_only, CHAT_mode)
+        output_filename = ''.join((output_folder + 'concatenated_transcription_' + date_today + '.cha'))
+        save_transcription(transcript, output_filename, csv_file, CHAT_mode)
 
     # concatenate_input = False
     else:
@@ -499,8 +512,8 @@ def main(message_label):
                 transcript = transcribe_speech(audiofile, client_api, message_label)
                 # Save all trascriptions in output folder
                 audio_file_name =  re.split('[/.]', audiofile)[-2]
-                output_filename = ''.join((output_folder + audio_file_name + '_transcription_' + date_today + '.csv'))
-                save_transcription(transcript, output_filename, text_only, CHAT_mode)
+                output_filename = ''.join((output_folder + audio_file_name + '_transcription_' + date_today + '.cha'))
+                save_transcription(transcript, output_filename, csv_file, CHAT_mode)
 
 
     print('\nAll transcription is finished')
@@ -528,7 +541,7 @@ def submit_click():
     # update config entries with new inputs from the GUI
     for entry in config_entries:
         for item in config_entries[entry]:
-            config[entry][item] = entry_inputs[item].get()
+            config[entry][item] = str(entry_inputs[item].get())
 
 
     # write the current config entries to the config file
@@ -548,18 +561,23 @@ def submit_click():
         if check_result:
             #execute transcription script
             main(message_label)
+            
+            if button_check.get() == 0:
+                config['API.token']['token'] = '(enter your API token)'
+                with open('transcription_config.ini', 'w') as cf:
+                    config.write(cf)
     except Exception:
         print('Error: exception found, program exited.')
         sys.exit()
         
 def CHAT_switch():
-    skip_diarization.delete(0, 'end')
-    skip_diarization.insert(0, 'False')
-    skip_diarization.config(state='disabled')
+    diarization.delete(0, 'end')
+    diarization.insert(0, 'True')
+    diarization.config(state='disabled')
     
-    skip_punctuation.delete(0, 'end')
-    skip_punctuation.insert(0, 'True')
-    skip_punctuation.config(state='disabled')
+    punctuation.delete(0, 'end')
+    punctuation.insert(0, 'False')
+    punctuation.config(state='disabled')
     
     remove_disfluencies.delete(0, 'end')
     remove_disfluencies.insert(0, 'False')
@@ -571,8 +589,8 @@ def CHAT_switch():
 
 
 def customize_switch():
-    skip_diarization.config(state='normal')
-    skip_punctuation.config(state='normal')
+    diarization.config(state='normal')
+    punctuation.config(state='normal')
     remove_disfluencies.config(state='normal')
     speaker_channels_count.config(state='normal')
 
@@ -582,7 +600,7 @@ def mode_switch():
     if mode.get() == 'CHAT':
         CHAT_switch()
     else:
-        mode.set('customize')
+        mode.set('unformatted')
         customize_switch()
 
 
@@ -612,114 +630,120 @@ entry_inputs['token'] = token
 #token_note = tkinter.Label(root, text="RevAI token")
 #token_note.place(x= 700, y = 50)
 
+save_check = config['API.token']['save_check']
+button_check = tkinter.IntVar(value = int(save_check))
+entry_inputs['save_check'] = button_check
+
+button_label = tkinter.Label(root, text='save API token')
+button_label.place(x= 30, y = 100)
+token_button = Checkbutton(root, text = "", variable = button_check, onvalue = 1, offvalue = 0, height = 2, width = 10) 
+token_button.place(x= 130, y = 92)
+
 input_folder_label = tkinter.Label(root, text='input folder')
-input_folder_label.place(x= 30, y = 110)
+input_folder_label.place(x= 30, y = 140)
 input_folder = ttk.Entry(root)
-input_folder.place(x= 120, y = 110)
+input_folder.place(x= 120, y = 140)
 input_folder.delete(0, "end")
 input_folder.insert(0, config['folders']['input_folder'])
 entry_inputs['input_folder'] = input_folder
 input_folder_note = tkinter.Label(root, text='Subfolder of input audio files')
-input_folder_note.place(x= 400, y = 110)
+input_folder_note.place(x= 400, y = 140)
 
 
 output_folder_label = tkinter.Label(root, text='output folder')
-output_folder_label.place(x= 30, y = 140)
+output_folder_label.place(x= 30, y = 170)
 output_folder = ttk.Entry(root)
-output_folder.place(x= 120, y = 140)
+output_folder.place(x= 120, y = 170)
 output_folder.delete(0, 'end')
 output_folder.insert(0, config['folders']['output_folder'])
 entry_inputs['output_folder'] = output_folder
 output_folder_note = tkinter.Label(root, text='Subfolder for output transcriptions')
-output_folder_note.place(x= 400, y = 140)
-
-
-
+output_folder_note.place(x= 400, y = 170)
 
 
 
 concatenate_input_label = tkinter.Label(root, text='concatenate input')
-concatenate_input_label.place(x= 30, y = 220)
+concatenate_input_label.place(x= 30, y = 250)
 concatenate_input = ttk.Entry(root)
-concatenate_input.place(x= 170, y = 220)
+concatenate_input.place(x= 170, y = 250)
 concatenate_input.delete(0, 'end')
 concatenate_input.insert(0, config['concatenation']['concatenate_input'])
 entry_inputs['concatenate_input'] = concatenate_input
 concatenate_input_note = tkinter.Label(root, text='Concatenate audio files for transcription?')
-concatenate_input_note.place(x= 400, y = 220)
+concatenate_input_note.place(x= 400, y = 250)
 
-text_only_label = tkinter.Label(root, text='text_only')
-text_only_label.place(x= 30, y = 260)
-text_only = ttk.Entry(root)
-text_only.place(x= 120, y = 260)
-text_only.delete(0, 'end')
-text_only.insert(0, config['concatenation']['text_only'])
-entry_inputs['text_only'] = text_only
-text_only_note = tkinter.Label(root, text='create an extra text-only TXT file for each transcription?')
-text_only_note.place(x= 400, y = 260)
+csv_file_label = tkinter.Label(root, text='csv_file')
+csv_file_label.place(x= 30, y = 290)
+csv_file = ttk.Entry(root)
+csv_file.place(x= 120, y = 290)
+csv_file.delete(0, 'end')
+csv_file.insert(0, config['concatenation']['csv_file'])
+entry_inputs['csv_file'] = csv_file
+csv_file_note = tkinter.Label(root, text='create an extra csv file for each transcription?')
+csv_file_note.place(x= 400, y = 290)
 
 language_config_label = tkinter.Label(root, text='Configure the transcriber', font=('Helvetica', 12))
-language_config_label.place(x= 30, y = 310)
+language_config_label.place(x= 30, y = 340)
 
-skip_diarization_label = tkinter.Label(root, text='skip diarization')
-skip_diarization_label.place(x= 30, y = 340)
-skip_diarization = ttk.Entry(root)
-skip_diarization.place(x= 150, y = 340)
-skip_diarization.delete(0, 'end')
-skip_diarization.insert(0, config['transcribe.config']['skip_diarization'])
-entry_inputs['skip_diarization'] = skip_diarization
-skip_diarization_note = tkinter.Label(root, text='Do not separate speakers?')
-skip_diarization_note.place(x= 400, y = 340)
+diarization_label = tkinter.Label(root, text='diarization')
+diarization_label.place(x= 30, y = 370)
+diarization = ttk.Entry(root)
+diarization.place(x= 150, y = 370)
+diarization.delete(0, 'end')
+diarization.insert(0, config['transcribe.config']['diarization'])
+entry_inputs['diarization'] = diarization
+diarization_note = tkinter.Label(root, text='Do not separate speakers?')
+diarization_note.place(x= 400, y = 370)
 
-skip_punctuation_label = tkinter.Label(root, text='skip punctuation')
-skip_punctuation_label.place(x= 30, y = 370)
-skip_punctuation = ttk.Entry(root)
-skip_punctuation.place(x= 150, y = 370)
-skip_punctuation.delete(0, 'end')
-skip_punctuation.insert(0, config['transcribe.config']['skip_punctuation'])
-entry_inputs['skip_punctuation'] = skip_punctuation
-skip_punctuation_note = tkinter.Label(root, text='Skip punctuation?')
-skip_punctuation_note.place(x= 400, y = 370)
+punctuation_label = tkinter.Label(root, text='punctuation')
+punctuation_label.place(x= 30, y = 400)
+punctuation = ttk.Entry(root)
+punctuation.place(x= 150, y = 400)
+punctuation.delete(0, 'end')
+punctuation.insert(0, config['transcribe.config']['punctuation'])
+entry_inputs['punctuation'] = punctuation
+punctuation_note = tkinter.Label(root, text='punctuation?')
+punctuation_note.place(x= 400, y = 400)
 
 remove_disfluencies_label = tkinter.Label(root, text='remove disfluencies')
-remove_disfluencies_label.place(x= 30, y = 400)
+remove_disfluencies_label.place(x= 30, y = 430)
 remove_disfluencies = ttk.Entry(root)
-remove_disfluencies.place(x= 160, y = 400)
+remove_disfluencies.place(x= 160, y = 430)
 remove_disfluencies.delete(0, 'end')
 remove_disfluencies.insert(0, config['transcribe.config']['remove_disfluencies'])
 entry_inputs['remove_disfluencies'] = remove_disfluencies
 remove_disfluencies_note = tkinter.Label(root, text='Remove disfluencies (uh, ah)?')
-remove_disfluencies_note.place(x= 400, y = 400)
+remove_disfluencies_note.place(x= 400, y = 430)
 
 speaker_channels_count_label = tkinter.Label(root, text='speaker channels count')
-speaker_channels_count_label.place(x= 30, y = 430)
+speaker_channels_count_label.place(x= 30, y = 460)
 speaker_channels_count = ttk.Entry(root)
-speaker_channels_count.place(x= 185, y = 430)
+speaker_channels_count.place(x= 185, y = 460)
 speaker_channels_count.delete(0, 'end')
 speaker_channels_count.insert(0, config['transcribe.config']['speaker_channels_count'])
 entry_inputs['speaker_channels_count'] = speaker_channels_count
 speaker_channels_note = tkinter.Label(root, text='number of audio channels (mono = 1, stereo = 2, etc.)')
-speaker_channels_note.place(x= 400, y = 430)
+speaker_channels_note.place(x= 400, y = 460)
 
 language_label = tkinter.Label(root, text='language')
-language_label.place(x= 30, y = 460)
+language_label.place(x= 30, y = 490)
 language = ttk.Entry(root)
-language.place(x= 100, y = 460)
+language.place(x= 100, y = 490)
 language.delete(0, 'end')
 language.insert(0, config['transcribe.config']['language'])
 entry_inputs['language'] = language
 language_note = tkinter.Label(root, text='English: en, Spanish: es, Mandarin: cmn, French: fr')
-language_note.place(x= 400, y = 460)
+language_note.place(x= 400, y = 490)
 
 delete_after_seconds_label = tkinter.Label(root, text='delete_after_seconds')
-delete_after_seconds_label.place(x= 30, y = 490)
+delete_after_seconds_label.place(x= 30, y = 520)
 delete_after_seconds = ttk.Entry(root)
-delete_after_seconds.place(x= 180, y = 490)
+delete_after_seconds.place(x= 180, y = 520)
 delete_after_seconds.delete(0, 'end')
 delete_after_seconds.insert(0, config['transcribe.config']['delete_after_seconds'])
 entry_inputs['delete_after_seconds'] = delete_after_seconds
 delete_after_seconds_note = tkinter.Label(root, text='How long does it take to delete the file from the server?')
-delete_after_seconds_note.place(x= 400, y = 490)
+delete_after_seconds_note.place(x= 400, y = 520)
 
 # GUI style settings
 style = ttk.Style()
@@ -734,37 +758,37 @@ style.map('TButton', background=[('active', '#ff0000')])
 
 
 radio_label = tkinter.Label(root, text='output format:')
-radio_label.place(x = 30, y = 180)
+radio_label.place(x = 30, y = 210)
 
 mode = tkinter.StringVar()
 
 
 radio_CHAT = Radiobutton(root, text='CHAT', variable=mode, value='CHAT')
 radio_CHAT.pack()
-radio_CHAT.place(x = 120, y = 180)
+radio_CHAT.place(x = 120, y = 210)
 
-radio_customize = Radiobutton(root, text='customize', variable=mode, value='customize')
+radio_customize = Radiobutton(root, text='unformatted', variable=mode, value='unformatted')
 radio_customize.pack()
-radio_customize.place(x = 190, y = 180)
+radio_customize.place(x = 190, y = 210)
 mode.set(config['output_format']['format'])
 mode_switch()
 entry_inputs['format'] = mode
 
 mode_switch_button = ttk.Button(root, text='confirm', command=lambda:mode_switch())
 mode_switch_button.pack()
-mode_switch_button.place(x = 310, y = 180)
+mode_switch_button.place(x = 310, y = 210)
 
 
 # button to save the input and run the transcription
 submit_button = ttk.Button(root, text='Save & Transcribe', command=lambda:submit_click())
 submit_button.pack()
-submit_button.place(x = 60, y = 530)
+submit_button.place(x = 60, y = 560)
 
 
 # message shown in the GUI (error message, transcribing status etc.)
 message_label = tkinter.Label(root, textvariable = error_message, justify = LEFT)
 #message_label.pack()
-message_label.place(x= 30, y = 580)
+message_label.place(x= 30, y = 610)
 
 sys.stdout.write = redirect_text
 # run the GUI

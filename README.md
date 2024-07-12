@@ -98,17 +98,17 @@ These variables must be specified
 
 Optional settings to customize transcription
 
-  - **concatenate_input** - Default: `False`. Specifies whether audio files will be combined into one long audio file prior to transcription. Concatenation speeds up transcription and is less costly when individual sound files contain one or two spoken words. Specify `True` to concatenate your audio files. Specify `False` to transcribe each audio file separately.
-  - **csv_file** - Default: `False`. Specify if a csv file will be generated in addition to the text file. Specify `True` to have transcriptions also output in a csv file. Specify `False` to have transcription only in text file(s). See [output](#Output-formats) for details on output formats and examples.
+  - **concatenate_input** - Default: `no`. Specifies whether audio files will be combined into one long audio file prior to transcription. Concatenation speeds up transcription and is less costly when individual sound files contain one or two spoken words. Specify `yes` to concatenate your audio files. Specify `no` to transcribe each audio file separately.
+  - **word-by-word file** - Default: `yes`. Specify if a csv file will be generated in addition to the text file. Specify `yes` to have transcriptions also output in a csv file. Specify `no` to have transcription only in text file(s). See [output](#Output-formats) for details on output formats and examples.
 
 Transcription settings
 
-  - **diarization** - Set to `True` when the **output format** is specified as `CHAT`. Default: `True`. Specify whether output will indicate speaker identity alongside the transcription. Specify `True` if you would like the speakers to be identified (i.e., speaker 0, speaker 1, etc.). If speaker identity is not relevant, such as if the audio contains only one speaker, set to `False`. When `False`, the transcription engine will not distinguish the speech among speakers. Note that  speaker_channels_count must also be specified correctly for diarization to succeed.
-  - **punctuation** - Set to `False` when the **output format** is specified as `CHAT`. Default: `False`. Specify whether the output will include punctuation. Specify `True` if you would like the transcription to include punctuation, otherwise specify `False`. Only available for **English**.
-  - **remove_disfluencies** - Set to `False` when the **output format** is specified as `CHAT`. Default: `False`. Specify whether the output will contain speech disfluencies that are recognized by the transcription engine ("um" and "uh"). Specify `True` if you would like your transcription to exclude disfluencies, otherwise specify `False`. Only available for **English**.
+  - **diarization** - Set to `separate` when the **output format** is specified as `CHAT`. Default: `separate`. Specify whether output will separate the speakers alongside the transcription. Specify `separate` if you would like the speakers to be identified (i.e., speaker 0, speaker 1, etc.). If speaker identity is not relevant, such as if the audio contains only one speaker, set to `don't separate`. When `don't separate`, the transcription engine will not distinguish the speech among speakers. Note that  speaker_channels_count must also be specified correctly for diarization to succeed.
+  - **punctuation** - Set to `yes` when the **output format** is specified as `CHAT`. Default: `yes`. Specify whether the output will insert punctuation. Specify `Yes` if you would like the transcription to include punctuation, otherwise specify `no`. Only available for **English**.
+  - **remove_disfluencies** - Set to `no` when the **output format** is specified as `CHAT`. Default: `no`. Specify whether the output will contain speech disfluencies that are recognized by the transcription engine ("um" and "uh"). Specify `yes` if you would like your transcription to exclude disfluencies, otherwise specify `no`. Only available for **English**.
   - **speaker_channels_count** - Set to `None` when the **output format** is specified as `CHAT`. Default: `1`. Specify the number of audio channels in the audio file. Mono = 1, Stereo = 2, (up to 8). Specify `None` when there are multiple speakers in a single channel. The value of **diarization** will be ignored if an integer value is provided here. Only available for **English**.
   - **language** - Default: `en`. Language of transcription. English = `en`, Spanish = `es`, Mandarin Chinese Simplified = `cmn`, French = `fr`. For a full list of languages available for transcription, see [Rev AI supported languages](https://www.rev.ai/languages).
-  - **delete_after_seconds** - Default: `None`. The number of seconds before the audio file is deleted from the server. None = no time specified (audio will be deleted according to user’s account settings - default is 30 days).
+  - **delete_immediately** - Default: `no`. Specify whether the sound file(s) will be deleted 60 seconds after the transcription. no = no immediate deletion (audio will be deleted according to user’s account settings - default is 30 days). yes = delete sound file(s) after 60 seconds
 
 These additional transcription variables are included in str.py but commented out because they may be of secondary importance to most users. Uncomment and set them as needed. For a full explanation of these variables, visit [transcription variables](https://docs.rev.ai/api/asynchronous/reference/#operation/SubmitTranscriptionJob).
 
@@ -168,7 +168,7 @@ If **output_format** is specified as `unformatted`. The unformatted text file wi
 
 ### csv output
 
-If the **csv_file** variable is specified `True`, an additional csv file with the same name will be generated for every text file created.
+If the **word-by-word file** variable is specified `True`, an additional csv file with the same name will be generated for every text file created.
 
 A csv transcription file consists of three columns: **Filename**, **Transcription**, and **Confidence** as shown below. Each line contains the transcription of a word in the listed audio file.
 
@@ -246,14 +246,14 @@ This table provides the variable settings for CHAT format transcription in diffe
 
 |                    | *English*       | *Other languages* |
 | -----------------  | --------------- | --------------- |
-| concatenate_input  |  False          | False           |
-| csv_file          | True            | True            |
-| diarization   | True           | True           |
-| punctuation   | False            |**not available**|
-| remove_disfluencies| True            |**not available**|
+| concatenate_input  |  no             | no              |
+| word-by-word file  | yes/no          | yes/no          |
+| diarization        | yes             | yes             |
+| punctuation        | yes             |**not available**|
+| remove_disfluencies| yes             |**not available**|
 | speaker_channels_count| None         |**not available**|
 | language           | en              | es/fr/de/etc.   |
-| delete_after_seconds| None           | None            |
+| delete_immediately| None           | None            |
 
 
 

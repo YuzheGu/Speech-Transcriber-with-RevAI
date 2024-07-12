@@ -247,7 +247,7 @@ def transcribe_speech(audiofile, client_api, message_label):
         job = client_api.submit_job_local_file(
             filename = audiofile,  # file name
             skip_diarization = False if CHAT_mode else not config.getboolean('transcribe.config', 'diarization'),  # needed for conversations. Tries to match audio with speakers
-            skip_punctuation = True if CHAT_mode else not config.getboolean('transcribe.config', 'punctuation'),  # removes punctuations
+            skip_punctuation = False if CHAT_mode else not config.getboolean('transcribe.config', 'punctuation'),  # removes punctuations
             remove_disfluencies = False if CHAT_mode else config.getboolean('transcribe.config', 'remove_disfluencies'),  # removes speech disfluencies ("uh", "um"). Only avalable for English, Spanish, French languages
             speaker_channels_count = None if CHAT_mode else speaker_channels_count,  # Number of audio channels. Only avalable for English, Spanish, French languages
             language = config['transcribe.config']['language'],  # language of the audio file(s)
@@ -571,17 +571,21 @@ def submit_click():
         sys.exit()
         
 def CHAT_switch():
-    diarization.delete(0, 'end')
-    diarization.insert(0, 'True')
-    diarization.config(state='disabled')
+    concatenate_input_mode.set('False')
+    concatenate_input_true.config(state='disabled')
+    concatenate_input_false.config(state='disabled')
     
-    punctuation.delete(0, 'end')
-    punctuation.insert(0, 'False')
-    punctuation.config(state='disabled')
+    diarization_mode.set('True')
+    diarization_true.config(state='disabled')
+    diarization_false.config(state='disabled')
     
-    remove_disfluencies.delete(0, 'end')
-    remove_disfluencies.insert(0, 'False')
-    remove_disfluencies.config(state='disabled')
+    punctuation_mode.set('True')
+    punctuation_true.config(state='disabled')
+    punctuation_false.config(state='disabled')
+    
+    remove_disfluencies_mode.set('False')
+    remove_disfluencies_true.config(state='disabled')
+    remove_disfluencies_false.config(state='disabled')
     
     speaker_channels_count.delete(0, 'end')
     speaker_channels_count.insert(0, 'None')
@@ -589,9 +593,14 @@ def CHAT_switch():
 
 
 def customize_switch():
-    diarization.config(state='normal')
-    punctuation.config(state='normal')
-    remove_disfluencies.config(state='normal')
+    concatenate_input_true.config(state='normal')
+    concatenate_input_false.config(state='normal')
+    diarization_true.config(state='normal')
+    diarization_false.config(state='normal')
+    punctuation_true.config(state='normal')
+    punctuation_false.config(state='normal')
+    remove_disfluencies_true.config(state='normal')
+    remove_disfluencies_false.config(state='normal')
     speaker_channels_count.config(state='normal')
 
 def mode_switch():
@@ -638,6 +647,8 @@ button_label = tkinter.Label(root, text='save API token')
 button_label.place(x= 30, y = 100)
 token_button = Checkbutton(root, text = "", variable = button_check, onvalue = 1, offvalue = 0, height = 2, width = 10) 
 token_button.place(x= 130, y = 92)
+token_button_note = tkinter.Label(root, text='Save your Rev AI API token in this device?')
+token_button_note.place(x= 400, y = 100)
 
 input_folder_label = tkinter.Label(root, text='input folder')
 input_folder_label.place(x= 30, y = 140)
@@ -664,56 +675,89 @@ output_folder_note.place(x= 400, y = 170)
 
 concatenate_input_label = tkinter.Label(root, text='concatenate input')
 concatenate_input_label.place(x= 30, y = 250)
-concatenate_input = ttk.Entry(root)
-concatenate_input.place(x= 170, y = 250)
-concatenate_input.delete(0, 'end')
-concatenate_input.insert(0, config['concatenation']['concatenate_input'])
-entry_inputs['concatenate_input'] = concatenate_input
+
+concatenate_input_mode = tkinter.StringVar()
+concatenate_input_true = Radiobutton(root, text='yes', variable=concatenate_input_mode, value='True')
+concatenate_input_true.pack()
+concatenate_input_true.place(x = 150, y = 250)
+concatenate_input_false = Radiobutton(root, text="no", variable=concatenate_input_mode, value='False')
+concatenate_input_false.pack()
+concatenate_input_false.place(x = 220, y = 250)
+concatenate_input_mode.set(config['concatenation']['concatenate_input'])
+entry_inputs['concatenate_input'] = concatenate_input_mode
 concatenate_input_note = tkinter.Label(root, text='Concatenate audio files for transcription?')
 concatenate_input_note.place(x= 400, y = 250)
 
-csv_file_label = tkinter.Label(root, text='csv_file')
+csv_file_label = tkinter.Label(root, text='word-by-word file')
 csv_file_label.place(x= 30, y = 290)
-csv_file = ttk.Entry(root)
-csv_file.place(x= 120, y = 290)
-csv_file.delete(0, 'end')
-csv_file.insert(0, config['concatenation']['csv_file'])
-entry_inputs['csv_file'] = csv_file
-csv_file_note = tkinter.Label(root, text='create an extra csv file for each transcription?')
+
+csv_file_mode = tkinter.StringVar()
+csv_file_true = Radiobutton(root, text='yes', variable=csv_file_mode, value='True')
+csv_file_true.pack()
+csv_file_true.place(x = 150, y = 290)
+csv_file_false = Radiobutton(root, text='no', variable=csv_file_mode, value='False')
+csv_file_false.pack()
+csv_file_false.place(x = 220, y = 290)
+csv_file_mode.set(config['concatenation']['csv_file'])
+entry_inputs['csv_file'] = csv_file_mode
+csv_file_note = tkinter.Label(root, text='Create a word-by-word csv output file for each transcription?')
 csv_file_note.place(x= 400, y = 290)
+
+
+
+
 
 language_config_label = tkinter.Label(root, text='Configure the transcriber', font=('Helvetica', 12))
 language_config_label.place(x= 30, y = 340)
 
 diarization_label = tkinter.Label(root, text='diarization')
 diarization_label.place(x= 30, y = 370)
-diarization = ttk.Entry(root)
-diarization.place(x= 150, y = 370)
-diarization.delete(0, 'end')
-diarization.insert(0, config['transcribe.config']['diarization'])
-entry_inputs['diarization'] = diarization
-diarization_note = tkinter.Label(root, text='Do not separate speakers?')
+
+diarization_mode = tkinter.StringVar()
+diarization_true = Radiobutton(root, text='seperate', variable=diarization_mode, value='True')
+diarization_true.pack()
+diarization_true.place(x = 120, y = 370)
+diarization_false = Radiobutton(root, text="don't seperate", variable=diarization_mode, value='False')
+diarization_false.pack()
+diarization_false.place(x = 220, y = 370)
+diarization_mode.set(config['transcribe.config']['diarization'])
+entry_inputs['diarization'] = diarization_mode
+diarization_note = tkinter.Label(root, text='Separate speakers?')
 diarization_note.place(x= 400, y = 370)
+
 
 punctuation_label = tkinter.Label(root, text='punctuation')
 punctuation_label.place(x= 30, y = 400)
-punctuation = ttk.Entry(root)
-punctuation.place(x= 150, y = 400)
-punctuation.delete(0, 'end')
-punctuation.insert(0, config['transcribe.config']['punctuation'])
-entry_inputs['punctuation'] = punctuation
-punctuation_note = tkinter.Label(root, text='punctuation?')
+
+punctuation_mode = tkinter.StringVar()
+punctuation_true = Radiobutton(root, text='yes', variable=punctuation_mode, value='True')
+punctuation_true.pack()
+punctuation_true.place(x = 120, y = 400)
+punctuation_false = Radiobutton(root, text="no", variable=punctuation_mode, value='False')
+punctuation_false.pack()
+punctuation_false.place(x = 220, y = 400)
+punctuation_mode.set(config['transcribe.config']['punctuation'])
+entry_inputs['punctuation'] = punctuation_mode
+punctuation_note = tkinter.Label(root, text='Insert punctuation?')
 punctuation_note.place(x= 400, y = 400)
+
 
 remove_disfluencies_label = tkinter.Label(root, text='remove disfluencies')
 remove_disfluencies_label.place(x= 30, y = 430)
-remove_disfluencies = ttk.Entry(root)
-remove_disfluencies.place(x= 160, y = 430)
-remove_disfluencies.delete(0, 'end')
-remove_disfluencies.insert(0, config['transcribe.config']['remove_disfluencies'])
-entry_inputs['remove_disfluencies'] = remove_disfluencies
+
+remove_disfluencies_mode = tkinter.StringVar()
+remove_disfluencies_true = Radiobutton(root, text='yes', variable=remove_disfluencies_mode, value='True')
+remove_disfluencies_true.pack()
+remove_disfluencies_true.place(x = 160, y = 430)
+remove_disfluencies_false = Radiobutton(root, text="no", variable=remove_disfluencies_mode, value='False')
+remove_disfluencies_false.pack()
+remove_disfluencies_false.place(x = 220, y = 430)
+remove_disfluencies_mode.set(config['transcribe.config']['remove_disfluencies'])
+entry_inputs['remove_disfluencies'] = remove_disfluencies_mode
 remove_disfluencies_note = tkinter.Label(root, text='Remove disfluencies (uh, ah)?')
 remove_disfluencies_note.place(x= 400, y = 430)
+
+
 
 speaker_channels_count_label = tkinter.Label(root, text='speaker channels count')
 speaker_channels_count_label.place(x= 30, y = 460)
@@ -735,15 +779,22 @@ entry_inputs['language'] = language
 language_note = tkinter.Label(root, text='English: en, Spanish: es, Mandarin: cmn, French: fr')
 language_note.place(x= 400, y = 490)
 
-delete_after_seconds_label = tkinter.Label(root, text='delete_after_seconds')
+delete_after_seconds_label = tkinter.Label(root, text='delete immediately')
 delete_after_seconds_label.place(x= 30, y = 520)
-delete_after_seconds = ttk.Entry(root)
-delete_after_seconds.place(x= 180, y = 520)
-delete_after_seconds.delete(0, 'end')
-delete_after_seconds.insert(0, config['transcribe.config']['delete_after_seconds'])
-entry_inputs['delete_after_seconds'] = delete_after_seconds
-delete_after_seconds_note = tkinter.Label(root, text='How long does it take to delete the file from the server?')
+delete_after_seconds_mode = tkinter.StringVar()
+delete_after_seconds_true = Radiobutton(root, text='yes', variable=delete_after_seconds_mode, value='1')
+delete_after_seconds_true.pack()
+delete_after_seconds_true.place(x = 160, y = 520)
+delete_after_seconds_false = Radiobutton(root, text="no", variable=delete_after_seconds_mode, value='None')
+delete_after_seconds_false.pack()
+delete_after_seconds_false.place(x = 220, y = 520)
+delete_after_seconds_mode.set(config['transcribe.config']['delete_after_seconds'])
+entry_inputs['delete_after_seconds'] = delete_after_seconds_mode
+
+delete_after_seconds_note = tkinter.Label(root, text='Delete the file(s) from the server immediately after transcription?')
 delete_after_seconds_note.place(x= 400, y = 520)
+
+
 
 # GUI style settings
 style = ttk.Style()
@@ -757,7 +808,7 @@ style.map('TButton', background=[('active', '#ff0000')])
 # customize_switch_button.place(x = 300, y = 20)
 
 
-radio_label = tkinter.Label(root, text='output format:')
+radio_label = tkinter.Label(root, text='output format')
 radio_label.place(x = 30, y = 210)
 
 mode = tkinter.StringVar()

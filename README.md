@@ -108,7 +108,7 @@ Transcription settings
   - **remove_disfluencies** - Set to `no` when the **output format** is specified as `CHAT`. Default: `no`. Specify whether the output will contain speech disfluencies that are recognized by the transcription engine ("um" and "uh"). Specify `yes` if you would like your transcription to exclude disfluencies, otherwise specify `no`. Only available for **English**.
   - **speaker_channels_count** - Set to `None` when the **output format** is specified as `CHAT`. Default: `1`. Specify the number of audio channels in the audio file. Mono = 1, Stereo = 2, (up to 8). Specify `None` when there are multiple speakers in a single channel. The value of **diarization** will be ignored if an integer value is provided here. Only available for **English**.
   - **language** - Default: `en`. Language of transcription. English = `en`, Spanish = `es`, Mandarin Chinese Simplified = `cmn`, French = `fr`. For a full list of languages available for transcription, see [Rev AI supported languages](https://www.rev.ai/languages).
-  - **delete_immediately** - Default: `no`. Specify whether the sound file(s) will be deleted 60 seconds after the transcription. no = no immediate deletion (audio will be deleted according to user’s account settings - default is 30 days). yes = delete sound file(s) after 60 seconds
+
 
 These additional transcription variables are included in str.py but commented out because they may be of secondary importance to most users. Uncomment and set them as needed. For a full explanation of these variables, visit [transcription variables](https://docs.rev.ai/api/asynchronous/reference/#operation/SubmitTranscriptionJob).
 
@@ -253,7 +253,6 @@ This table provides the variable settings for CHAT format transcription in diffe
 | remove_disfluencies| yes             |**not available**|
 | speaker_channels_count| None         |**not available**|
 | language           | en              | es/fr/de/etc.   |
-| delete_immediately| None           | None            |
 
 
 

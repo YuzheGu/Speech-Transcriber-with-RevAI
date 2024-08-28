@@ -332,7 +332,12 @@ def save_transcription(output_data, output_file_name_def, csv_file, CHAT_output)
         "dr.": "Doctor",
         "mr.": "Mister",
         "mrs.": "Missus",
-        "ms.": "Ms"
+        "ms.": "Ms",
+        "<laugh>": "&=laughs",
+        "um": "&-um",
+        "uh": "&-uh",
+        "er": "&-er",
+        "eh": "&-eh"
     }
 
     header_text = (

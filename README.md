@@ -161,7 +161,7 @@ Example output:
 If **output_format** is specified as `unformatted`. The unformatted text file will be output in a .txt file.
 
 <p align="center">
-<img src="./asset/example_output_2p1.png" alt="example text-only output" width="75%"/>
+<img src="./asset/example_output_3p.png" alt="example text-only output" width="75%"/>
 </p>
 
 <br/>
@@ -181,7 +181,7 @@ When transcribing a conversation, an additional column **Speaker** will contain 
 Example output:
 
 <p align="center">
-<img src="./asset/example_output_21.png" alt="example output" width="75%"/>
+<img src="./asset/example_output_3.png" alt="example output" width="75%"/>
 </p>
 
 <br/>

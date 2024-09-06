@@ -152,17 +152,12 @@ If **output_format** is specified as `CHAT`, The text file will be output in a .
 
 CHAT is a format of transcription. More information could be found at [CHAT](https://talkbank.org/manuals/CHAT.html).
 
-Example output:
+[Example CHAT output](#Example-CHAT-output) from the transcription example.
 
-<p align="center">
-<img src="./asset/example_output_CHAT.png" alt="example CHAT output" width="75%"/>
-</p>
 
 If **output_format** is specified as `unformatted`. The unformatted text file will be output in a .txt file.
 
-<p align="center">
-<img src="./asset/example_output_3p.png" alt="example text-only output" width="75%"/>
-</p>
+[Example unformatted output](#Example-unformatted-output) from the transcription example.
 
 <br/>
 
@@ -178,23 +173,19 @@ A csv transcription file consists of three columns: **Filename**, **Transcriptio
 
 When transcribing a conversation, an additional column **Speaker** will contain speaker identity alongside the transcription.
 
-Example output:
-
-<p align="center">
-<img src="./asset/example_output_3.png" alt="example output" width="75%"/>
-</p>
+[Example csv output](#First-several-lines-of-the-example-csv-output) from the transcription example.
 
 <br/>
 
 ## Transcription Example
 
-This example is provide to illustrate a commmon use case. The audio file is in the designated folder included with the repository. Output will be saved in the given output folder - example_output.
+This example is provide to illustrate a common use case. The audio file is in the designated folder included with the repository. Output will be saved in the given output folder - example_output.
 
 See also the [Use Cases](#Variable-Settings-for-Common-Use-Cases) section below.
 
 <br/>
 
-### Transcribe an audio file containing a two-speaker conversation
+Transcribe an audio file containing a two-speaker conversation
 
 Enter your API token, then set the variables as shown below.
 
@@ -206,7 +197,7 @@ Configuration settings:
 
 Run the code. Transcription will take approximately 1 minute and will cost no more than 1 cent.
 
-Example CHAT output:
+### Example CHAT output:
 
 <p align="center">
 <img src="./asset/example_output_CHAT.png" alt="example text-only output 3" width="75%"/>
@@ -218,13 +209,13 @@ If you want to output the unformatted text file instead of a CHAT formatted file
 <img src="./asset/example_gui_3.png" alt="example gui 3" width="75%"/>
 </p>
 
-Example unformatted output:
+### Example unformatted output:
 
 <p align="center">
 <img src="./asset/example_output_3p.png" alt="example text-only output 3" width="75%"/>
 </p>
 
-First several lines of the example csv output:
+### First several lines of the example csv output:
 
 <p align="center">
 <img src="./asset/example_output_3.png" alt="example output 3" width="75%"/>

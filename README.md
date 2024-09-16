@@ -16,7 +16,7 @@ A Python script that simplifies speech-to-text transcription of audio files usin
 ## Requirements
 1. Operating system: Windows 10 or Mac OS 10.9 (Mavericks) and later, Linux.
 
-2. Python >= 3.7. We recommend installing [miniconda](https://docs.conda.io/projects/miniconda/en/latest/) if Python it is not installed on your computer.
+2. Python >= 3.8. We recommend installing [miniconda](https://docs.conda.io/projects/miniconda/en/latest/) if Python it is not installed on your computer.
 
 3. Familiarity with using the command line: Check [command line tools tutorial](https://www.codecademy.com/article/command-line-commands) for instructions.
 

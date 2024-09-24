@@ -2,6 +2,9 @@
 
 A Python script that simplifies speech-to-text transcription of audio files using the Rev AI engine. Using a GUI or the command line, transcription of a folder of files is performed in one call, and  transcriptions are saved in .csv and .txt files.
 
+Check the [tutorial video](https://www.youtube.com/watch?v=ZqQhwgtmW2U) for instructions on how to install and use it in Mac OS.
+Windows tutorial coming soon.
+
 ## Contents
 1. [Requirements](#Requirements)
 2. [Setup](#Setup)

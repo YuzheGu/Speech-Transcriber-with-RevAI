@@ -99,7 +99,7 @@ def config_check(config):
 
     # Check input and output folders
     if not os.path.exists(config['folders']['input_folder']):
-        console_message += 'Error: Input folder does not exist. Ensure the corret folder name is specified.\n'
+        console_message += 'Error: Input folder does not exist. Ensure the correct folder name is specified.\n'
         valid = False
 
     if not os.path.exists(config['folders']['output_folder']):
@@ -334,9 +334,13 @@ def transcribe_speech(audiofile, client_api, message_label):
 def save_transcription(output_data, output_file_name_def, csv_file, CHAT_output):
     replace_dict = {
         "dr.": "Doctor",
+        "dr": "Doctor",
         "mr.": "Mister",
         "mrs.": "Missus",
-        "ms.": "Ms",
+        "mrs": "Missus",
+        "mss": "Missus",
+        "ms.": "Miss",
+        "ms": "Miss",
         "<laugh>": "&=laughs",
         "um": "&-um",
         "uh": "&-uh",

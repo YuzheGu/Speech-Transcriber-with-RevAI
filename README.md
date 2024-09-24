@@ -226,10 +226,15 @@ If you want to output the unformatted text file instead of a CHAT formatted file
 
 <br/><br/>
 
-
 ## Language Availability
 
-Rev AI engine supports speech transcription in 36 languages. ([Rev AI supported languages](https://www.rev.ai/languages)). Some variables are available only for English. Unavailable variables will be automatically ignored.
+Rev AI engine supports speech transcription in over 50 languages. ([Rev AI supported languages](https://www.rev.ai/languages)). Some variables are available only for English. Unavailable variables will be automatically ignored.
+
+<br/><br/>
+
+## Command-line Users (str_nogui.py)
+
+Users who have programming experience may prefer to use the command-line only version of the script (str_nogui.py). In this version, users will configure transcription settings by editing the text file “transcription_config.ini”, which was downloaded alongside the script. Once the configuration file is edited and saved, navigate to the project folder in the command line and run the command: python str_nogui.py. If you specify that you want CHAT formatted output, the rest of the transcription variable settings will reset to pre-set values in line with the CHAT format.
 
 
 <br/><br/>

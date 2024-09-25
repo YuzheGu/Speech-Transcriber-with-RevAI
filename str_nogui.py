@@ -46,7 +46,7 @@ config_entries = {'API.token':['token', 'save_check'],
                   'folders':['input_folder', 'output_folder'],
                   'output_format': ['format'],
                   'concatenation':['concatenate_input', 'csv_file'],
-                  'transcribe.config':['diarization', 'punctuation', 'remove_disfluencies', 'speaker_channels_count', 'language', 'delete_after_seconds']
+                  'transcribe.config':['diarization', 'punctuation', 'remove_disfluencies', 'speaker_channels_count', 'language']
                  }
 
 # Check if all config.ini values are available and valid
@@ -135,18 +135,18 @@ def config_check(config):
         console_message += 'Error: Speaker channels count should be either None or a positive number.\n'
         valid = False
 
-    try:
-        # check the delete after seconds - it needs to be a positive integer or None
-        delete_check = config['transcribe.config']['delete_after_seconds']
-        if not delete_check.isnumeric() and delete_check != 'None':
-            console_message += 'Error: Delete after seconds should be either None or a positive number.\n'
-            valid = False
-        if delete_check.isnumeric() and int(delete_check) <= 0:
-            console_message += "Error: Delete after seconds should be a positive integer.\n"
-            valid = False
-    except Exception:
-        console_message += 'Error: Delete after seconds should be either None or a positive number.\n'
-        valid = False
+    # try:
+    #     # check the delete after seconds - it needs to be a positive integer or None
+    #     delete_check = config['transcribe.config']['delete_after_seconds']
+    #     if not delete_check.isnumeric() and delete_check != 'None':
+    #         console_message += 'Error: Delete after seconds should be either None or a positive number.\n'
+    #         valid = False
+    #     if delete_check.isnumeric() and int(delete_check) <= 0:
+    #         console_message += "Error: Delete after seconds should be a positive integer.\n"
+    #         valid = False
+    # except Exception:
+    #     console_message += 'Error: Delete after seconds should be either None or a positive number.\n'
+    #     valid = False
 
     # display the error message on GUI if not valid
     if valid:
@@ -238,7 +238,7 @@ def transcribe_speech(audiofile, client_api, message_label):
     # speaker channels count is a positive integer or None
     speaker_channels_count = None if config['transcribe.config']['speaker_channels_count'] == 'None' else int(config['transcribe.config']['speaker_channels_count'])
     # delete after seconds is a positive integer or None
-    delete_after_seconds = None if config['transcribe.config']['delete_after_seconds'] == 'None' else int(config['transcribe.config']['delete_after_seconds'])
+    #delete_after_seconds = None if config['transcribe.config']['delete_after_seconds'] == 'None' else int(config['transcribe.config']['delete_after_seconds'])
     if config['transcribe.config']['language'] == 'en':
         job = client_api.submit_job_local_file(
             filename = audiofile,  # file name
@@ -247,7 +247,7 @@ def transcribe_speech(audiofile, client_api, message_label):
             remove_disfluencies = False if CHAT_mode else config.getboolean('transcribe.config', 'remove_disfluencies'),  # removes speech disfluencies ("uh", "um"). Only avalable for English, Spanish, French languages
             speaker_channels_count = None if CHAT_mode else speaker_channels_count,  # Number of audio channels. Only avalable for English, Spanish, French languages
             language = config['transcribe.config']['language'],  # language of the audio file(s)
-            delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
+            #delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
             #verbatim = True,  # transcribe every syllable
             #remove_atmospherics = True,  # remove atmospherics (e.g. <laugh>)
             #filter_profanity = True,  # filter profanities
@@ -259,7 +259,7 @@ def transcribe_speech(audiofile, client_api, message_label):
             filename = audiofile,  # file name
             skip_diarization = False if CHAT_mode else not config.getboolean('transcribe.config', 'diarization'),  # needed for conversations. Tries to match audio with speakers
             language = config['transcribe.config']['language'],  # language of the audio file(s)
-            delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
+            #delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
             #verbatim = True,  # transcribe every syllable
             #remove_atmospherics = False,  # remove atmospherics (e.g. <laugh>)
             #filter_profanity = False,  # filter profanities
@@ -363,12 +363,16 @@ def save_transcription(output_data, output_file_name_def, csv_file, CHAT_output)
     footer_text = "\n@End"
     
     if csv_file:
+        if CHAT_output:
+            if 'speaker' in output_data[0]:
+                for m in range(len(output_data)):
+                    output_data[m]['speaker'] = str(int(output_data[m]['speaker']) + 1)
         keys_list = output_data[0].keys()
         csv_filename = output_file_name_def.rsplit('.')[0] + '.csv'
         with open(csv_filename,'w', newline='', encoding = 'utf-8-sig') as outfile:
             csv_writer = csv.DictWriter(outfile, keys_list)
             csv_writer.writeheader()
-            csv_writer.writerows(output_data)       
+            csv_writer.writerows(output_data)        
         
     if CHAT_output:
         text_filename = output_file_name_def
@@ -392,7 +396,10 @@ def save_transcription(output_data, output_file_name_def, csv_file, CHAT_output)
                 for result_word in output_data:
                     # switch speaker
                     if result_word['speaker'] != current_speaker:
-                        outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', result_word['transcription'])))
+                        if csv_file:
+                            outtextfile.write(''.join(('\nSP', str(int(result_word['speaker'])), ':\t', result_word['transcription'])))
+                        else:
+                            outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', result_word['transcription'])))
                         current_speaker = result_word['speaker']
                     else:
                         # no white space before a punctuation
@@ -533,7 +540,7 @@ if __name__ == '__main__':
     # Program will abort if errors are found
     config_message, config_valid = config_check(config)
     print(config_message)
-
+    
     #run the transcription only when every entry is valid
     if not config_valid:
         sys.exit()

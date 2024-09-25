@@ -21,7 +21,7 @@ Windows tutorial coming soon.
 
 2. Python >= 3.8. We recommend installing [miniconda](https://docs.conda.io/projects/miniconda/en/latest/) if Python it is not installed on your computer.
 
-3. Familiarity with using the command line: Check [command line tools tutorial](https://www.codecademy.com/article/command-line-commands) for instructions.
+3. Familiarity with using the command line: Check [command line tools tutorial](https://tutorials.codebar.io/command-line/introduction/tutorial.html) for instructions.
 
 4. Audio file formats supported by STR: .wav, .mp3, .ogg, .opus, .flac, and .webm.
 

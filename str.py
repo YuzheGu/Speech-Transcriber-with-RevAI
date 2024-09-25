@@ -367,6 +367,10 @@ def save_transcription(output_data, output_file_name_def, csv_file, CHAT_output)
     footer_text = "\n@End"
     
     if csv_file:
+        if CHAT_output:
+            if 'speaker' in output_data[0]:
+                for m in range(len(output_data)):
+                    output_data[m]['speaker'] = str(int(output_data[m]['speaker']) + 1)
         keys_list = output_data[0].keys()
         csv_filename = output_file_name_def.rsplit('.')[0] + '.csv'
         with open(csv_filename,'w', newline='', encoding = 'utf-8-sig') as outfile:
@@ -396,7 +400,10 @@ def save_transcription(output_data, output_file_name_def, csv_file, CHAT_output)
                 for result_word in output_data:
                     # switch speaker
                     if result_word['speaker'] != current_speaker:
-                        outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', result_word['transcription'])))
+                        if csv_file:
+                            outtextfile.write(''.join(('\nSP', str(int(result_word['speaker'])), ':\t', result_word['transcription'])))
+                        else:
+                            outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', result_word['transcription'])))
                         current_speaker = result_word['speaker']
                     else:
                         # no white space before a punctuation

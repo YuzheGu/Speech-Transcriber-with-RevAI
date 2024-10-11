@@ -52,6 +52,8 @@ pip3 install pydub
 pip3 install rev_ai
 ```
 
+Note: if pip3 could not successfully install the packages, replace pip3 with pip and install again.
+
 <br/>
 
 ### Install FFmpeg
@@ -81,11 +83,13 @@ Clone the repository if you are familiar with Git. Otherwise follow these steps.
 
 ## Usage
 
-1. Run the script from an IDE or from the command line using this line of code after navigating to your project folder
+1. Run the script from an IDE or from the command line using this line of code after navigating to your project folder.
 
 ```bash
 python3 str.py
 ```
+
+Note: if python3 could not activate the program successfully, replace python3 with python and try again.
 
 2. Alter the variables in the pop-up window to fit your transcription needs. See below for a description of each variable.
 

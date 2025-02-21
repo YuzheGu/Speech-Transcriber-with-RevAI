@@ -53,6 +53,11 @@ pip3 install rev_ai
 
 Note: if pip3 could not successfully install the packages, replace pip3 with pip and install again.
 
+If you have already installed a package before, run this line of code at the command line to upgrade your package.
+```bash
+pip3 install [package_name(pydub or rev_ai)] --upgrade
+```
+
 <br/>
 
 ### Install FFmpeg
@@ -76,6 +81,8 @@ Clone the repository if you are familiar with Git. Otherwise follow these steps.
 4. Within the project folder, create an input subfolder to store the audio files you wish to transcribe. Place the audio files for transcription in this subfolder.
 
 5. Within the project folder, create an output subfolder to store transcriptions.  Transcription output will be generated in this subfolder.
+
+6. Please avoid naming any folder "temp" inside the project folder, since a "temp" folder will be created and removed automatically during transcription.
 
 <br/>
 

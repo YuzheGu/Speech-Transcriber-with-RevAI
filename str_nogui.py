@@ -397,9 +397,15 @@ def save_transcription(output_data, output_file_name_def, csv_file, CHAT_output)
                     # switch speaker
                     if result_word['speaker'] != current_speaker:
                         if csv_file:
-                            outtextfile.write(''.join(('\nSP', str(int(result_word['speaker'])), ':\t', result_word['transcription'])))
+                            if result_word['transcription'] in replace_dict:
+                                outtextfile.write(''.join(('\nSP', str(int(result_word['speaker'])), ':\t', replace_dict[result_word['transcription']])))
+                            else:
+                                outtextfile.write(''.join(('\nSP', str(int(result_word['speaker'])), ':\t', result_word['transcription'])))
                         else:
-                            outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', result_word['transcription'])))
+                            if result_word['transcription'] in replace_dict:
+                                outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', replace_dict[result_word['transcription']])))
+                            else:
+                                outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', result_word['transcription'])))
                         current_speaker = result_word['speaker']
                     else:
                         # no white space before a punctuation

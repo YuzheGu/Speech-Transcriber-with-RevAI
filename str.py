@@ -251,11 +251,12 @@ def transcribe_speech(audiofile, client_api, message_label):
             remove_disfluencies = False if CHAT_mode else config.getboolean('transcribe.config', 'remove_disfluencies'),  # removes speech disfluencies ("uh", "um"). Only avalable for English, Spanish, French languages
             speaker_channels_count = None if CHAT_mode else speaker_channels_count,  # Number of audio channels. Only avalable for English, Spanish, French languages
             language = config['transcribe.config']['language'],  # language of the audio file(s)
+            #transcriber= "machine",
             #delete_after_seconds = delete_after_seconds,  # Amount of time after job completion when job is auto-deleted. Default (after 30 days) is None.
             #verbatim = True,  # transcribe every syllable
             #remove_atmospherics = True,  # remove atmospherics (e.g. <laugh>)
             #filter_profanity = True,  # filter profanities
-            #diarization_type = "standard",  # diarization type
+            diarization_type = "standard",  # diarization type
             #custom_vocabularies = []  # additional vocabulary
             )
     else:
@@ -401,9 +402,15 @@ def save_transcription(output_data, output_file_name_def, csv_file, CHAT_output)
                     # switch speaker
                     if result_word['speaker'] != current_speaker:
                         if csv_file:
-                            outtextfile.write(''.join(('\nSP', str(int(result_word['speaker'])), ':\t', result_word['transcription'])))
+                            if result_word['transcription'] in replace_dict:
+                                outtextfile.write(''.join(('\nSP', str(int(result_word['speaker'])), ':\t', replace_dict[result_word['transcription']])))
+                            else:
+                                outtextfile.write(''.join(('\nSP', str(int(result_word['speaker'])), ':\t', result_word['transcription'])))
                         else:
-                            outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', result_word['transcription'])))
+                            if result_word['transcription'] in replace_dict:
+                                outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', replace_dict[result_word['transcription']])))
+                            else:
+                                outtextfile.write(''.join(('\nSP', str(int(result_word['speaker']) + 1), ':\t', result_word['transcription'])))
                         current_speaker = result_word['speaker']
                     else:
                         # no white space before a punctuation
